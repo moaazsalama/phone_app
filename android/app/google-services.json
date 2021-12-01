@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "487444217007",
+    "project_id": "phone-lap",
+    "storage_bucket": "phone-lap.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:487444217007:android:6e9dd98d745ec0f1baa85a",
+        "android_client_info": {
+          "package_name": "com.example.phone_lap"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "487444217007-eg72h53bm6p2gg5vf2ime3idfala55q1.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.phone_lap",
+            "certificate_hash": "304634763bd5b9a66c8a08748c5a1d4975cb30af"
+          }
+        },
+        {
+          "client_id": "487444217007-jfot408jvm1phpq9f1a94dkae5g3fp6e.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBXNx3-_l31eMwI4mpkyZ8BIQWBYCdGpBo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "487444217007-jfot408jvm1phpq9f1a94dkae5g3fp6e.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
