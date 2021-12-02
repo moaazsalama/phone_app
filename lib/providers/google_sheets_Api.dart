@@ -78,20 +78,11 @@ class UserSheetApi {
     final List<Map<String, String>>? analysisTypes =
         await _bloodAnalysisType!.values.map.allRows(fromRow: 1);
 
-    final l = List.generate(analysisTypes!.length,
+   return List.generate(analysisTypes!.length,
         (index) => AnalysisType.fromMap(analysisTypes[index]));
 
-    if (isNecessary == null) {
-      print('$isNecessary a');
-      print(l);
-      return l;
-    } else {
-      print('$isNecessary b');
-      final s =
-          l.where((element) => element.isNeccessary == isNecessary).toList();
-      print(s);
-      return s;
-    }
+
+
   }
 
   static Future<List<Analysis>> fetchAnalysis({String? key}) async {
