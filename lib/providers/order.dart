@@ -150,7 +150,7 @@ class OrderItem {
   }
 
   Future<void> deliver(String resultUrl) async {
-    print(id! + "HHHHHHHHHHHH");
+
     await FirebaseFirestore.instance.collection('Orders').doc(id).update(
       {'isDeliverd': 'yes', 'resultUrl': resultUrl},
     );

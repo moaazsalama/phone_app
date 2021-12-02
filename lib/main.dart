@@ -159,7 +159,7 @@ class App extends StatelessWidget {
                         user: authProvider.auth.currentUser!,
                       );
                     else {
-                      var isadmin = authProvider
+                      final isadmin = authProvider
                           .isAdmin(authProvider.auth.currentUser!.email);
                       print(isadmin);
                       if (isadmin) return const AdminPage();

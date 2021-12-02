@@ -88,7 +88,7 @@ class _OrdersPageState extends State<OrdersPage> {
                           orderItem.copyWith(id: snapshot.data!.docs[index].id);
                       if (orderItem.user.analyzerId ==
                           Provider.of<AnalyzerProvider>(context, listen: false)
-                              .userId) ;
+                              .userId)
                       return orderItem;
                     });
 
@@ -108,7 +108,7 @@ class _OrdersPageState extends State<OrdersPage> {
                             : ListView.builder(
                                 padding: EdgeInsets.zero,
                                 itemBuilder: (context, index) {
-                                  return OrderWidget(request: request[index]);
+                                  return OrderWidget(request: request[index]!);
                                 },
                                 itemCount: request.length,
                               ),

@@ -32,11 +32,7 @@ class Analysis {
   }
 
   factory Analysis.fromMap(Map<String, dynamic> map) {
-    // ignore: avoid_bool_literals_in_conditional_expressions
-    final bool isNecessary = map['isNecessary'].toString() == 'false' ||
-            map['isNecessary'].toString() == 'False'
-        ? false
-        : true;
+
     return Analysis(
       name: map['analysisName'],
       price: map['price'],

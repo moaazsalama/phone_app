@@ -27,7 +27,7 @@ class _InfoScreenState extends State<InfoScreen> {
   TextEditingController _emailController = TextEditingController();
   TextEditingController _dateController =
       TextEditingController(text: DateFormat.yMd().format(DateTime(2000)));
-  GlobalKey<FormState> Key = GlobalKey<FormState>();
+  GlobalKey<FormState> key = GlobalKey<FormState>();
   DateTime? selectedDate;
   bool isMale = true;
   String city = 'Cario';
@@ -162,14 +162,14 @@ class _InfoScreenState extends State<InfoScreen> {
                             horizontal: getProportionateScreenWidth(20),
                             vertical: getProportionateScreenHeight(20)),
                         child: Form(
-                          key: Key,
+                          key: key,
                           child: TextFormField(
                             controller: _dateController,
                             validator: (value) {
-                              var last = value!.split('/').last;
-                              var tryParse = int.tryParse(last);
+                              final last = value!.split('/').last;
+                              final tryParse = int.tryParse(last);
                               if (tryParse != null) {
-                                var parse = int.parse(last);
+                                final parse = int.parse(last);
                                 if (parse > 2005) {
                                   return 'No Avaliable under 16 years ';
                                 }
@@ -177,7 +177,7 @@ class _InfoScreenState extends State<InfoScreen> {
                               return value;
                             },
                             decoration: InputDecoration(
-                              errorStyle: TextStyle(color: Colors.red),
+                              errorStyle: const TextStyle(color: Colors.red),
                               suffixIcon: const Icon(Icons.calendar_today),
                               labelText: 'Date',
                               enabled: false,
@@ -287,7 +287,7 @@ class _InfoScreenState extends State<InfoScreen> {
         textStyle: const TextStyle(fontSize: 20.0),
       );
     } else if (selectedDate!.year > 2005) {
-      Key.currentState!.validate();
+      key.currentState!.validate();
       showToast(
         'السن صغير',
         duration: const Duration(seconds: 2),
