@@ -340,34 +340,6 @@ class _OrderWidgetAdminState extends State<OrderWidgetAdmin> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 const Text(
-                  'IsNeccessary',
-                  textAlign: TextAlign.start,
-                  softWrap: true,
-                  style: TextStyle(
-                      color: Colors.black,
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600),
-                ),
-                Text(
-                  widget.request.analysis.isNecessary
-                      ? 'Neccessary ${widget.request.analysis.isNecessary}'
-                      : 'Normal',
-                  textAlign: TextAlign.start,
-                  softWrap: true,
-                  style: const TextStyle(
-                      color: Colors.black,
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600),
-                ),
-              ],
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                const Text(
                   'Analyzer Phone',
                   textAlign: TextAlign.start,
                   softWrap: true,

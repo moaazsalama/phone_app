@@ -142,7 +142,7 @@ class AnalysisItem extends StatelessWidget {
                                         id: 'uid',
                                         dateTime: DateTime.now(),
                                         isDeliverd: 'no'),
-                                    analysis.isNecessary ? '' : 'blood');
+                                   'blood');
                             Navigator.pop(context);
                           },
                         ),

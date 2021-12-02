@@ -3,12 +3,10 @@ import 'dart:convert';
 class Analysis {
   final String name;
   final String price;
-  final bool isNecessary;
   final String analysisType;
   Analysis({
     required this.name,
     required this.price,
-    required this.isNecessary,
     required this.analysisType,
   });
 
@@ -21,7 +19,6 @@ class Analysis {
     return Analysis(
       name: name ?? this.name,
       price: price ?? this.price,
-      isNecessary: isNecessary ?? this.isNecessary,
       analysisType: analysisType ?? this.analysisType,
     );
   }
@@ -30,7 +27,6 @@ class Analysis {
     return {
       'analysisName': name,
       'price': price,
-      'isNecessary': isNecessary,
       'analysisType': analysisType.toString(),
     };
   }
@@ -44,7 +40,6 @@ class Analysis {
     return Analysis(
       name: map['analysisName'],
       price: map['price'],
-      isNecessary: isNecessary,
       analysisType: map['analysisType'],
     );
   }
@@ -56,11 +51,11 @@ class Analysis {
 
   @override
   String toString() {
-    return 'Analysis(name: $name, price: $price, isNecessary: $isNecessary, analysisType: $analysisType)';
+    return 'Analysis(name: $name, price: $price, analysisType: $analysisType)';
   }
 
   static List values() =>
-      ['analysisName', 'price', 'isNecessary', 'analysisType'];
+      ['analysisName', 'price', 'analysisType'];
   @override
   bool operator ==(Object other) {
     if (identical(this, other)) return true;
@@ -68,7 +63,7 @@ class Analysis {
     return other is Analysis &&
         other.name == name &&
         other.price == price &&
-        other.isNecessary == isNecessary &&
+
         other.analysisType == analysisType;
   }
 
@@ -76,7 +71,7 @@ class Analysis {
   int get hashCode {
     return name.hashCode ^
         price.hashCode ^
-        isNecessary.hashCode ^
+
         analysisType.hashCode;
   }
 }

@@ -189,7 +189,7 @@ class _ConfirmPageState extends State<ConfirmPage> {
                                       final analysis = Analysis(
                                           name: 'PCR',
                                           price: '70LE',
-                                          isNecessary: false,
+
                                           analysisType: 'PCR');
                                       final user =
                                           Provider.of<AnalyzerProvider>(context,

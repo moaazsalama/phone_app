@@ -314,34 +314,6 @@ class OrderWidget extends StatelessWidget {
               ],
             ),
           ),
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                const Text(
-                  'IsNeccessary',
-                  textAlign: TextAlign.start,
-                  softWrap: true,
-                  style: TextStyle(
-                      color: Colors.black,
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600),
-                ),
-                Text(
-                  request.analysis.isNecessary
-                      ? 'Neccessary ${request.analysis.isNecessary}'
-                      : 'Normal',
-                  textAlign: TextAlign.start,
-                  softWrap: true,
-                  style: const TextStyle(
-                      color: Colors.black,
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600),
-                ),
-              ],
-            ),
-          ),
         ],
       ),
     );

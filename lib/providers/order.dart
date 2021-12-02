@@ -32,7 +32,7 @@ class Orders with ChangeNotifier {
       await UserSheetApi.insertPcrTravel({
         'analysisName': orderItem.analysis.name,
         'price': orderItem.analysis.price,
-        'isNecessary': orderItem.analysis.isNecessary,
+
         'analysisType': orderItem.analysis.analysisType.toString(),
         'analyzerId': orderItem.user.analyzerId,
         'analayzerName': orderItem.user.name,

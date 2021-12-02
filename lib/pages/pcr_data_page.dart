@@ -273,7 +273,6 @@ class _PcrDataScreenState extends State<PcrDataScreen> {
             analysis: Analysis(
                 name: 'Pcr',
                 analysisType: 'PCr',
-                isNecessary: false,
                 price: '100'),
             user: user,
             id: 'id',

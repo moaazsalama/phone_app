@@ -2,11 +2,11 @@ import 'dart:convert';
 
 class AnalysisType {
   final String anaysisType;
-  final bool isNeccessary;
+
   final String key;
   AnalysisType({
     required this.anaysisType,
-    required this.isNeccessary,
+
     required this.key,
   });
 
@@ -17,7 +17,7 @@ class AnalysisType {
   }) {
     return AnalysisType(
       anaysisType: anaysisType ?? this.anaysisType,
-      isNeccessary: isNeccessary ?? this.isNeccessary,
+
       key: key ?? this.key,
     );
   }
@@ -25,7 +25,7 @@ class AnalysisType {
   Map<String, dynamic> toMap() {
     return {
       'anaysisType': anaysisType,
-      'isNeccessary': isNeccessary,
+
       'key': key,
     };
   }
@@ -34,8 +34,6 @@ class AnalysisType {
     print('${map['isNeccessary']} from map ');
     return AnalysisType(
       anaysisType: map['anaysisType']!,
-      // ignore: avoid_bool_literals_in_conditional_expressions
-      isNeccessary: map['isNeccessary']!.contains('false') ? false : true,
       key: map['key']!,
     );
   }
@@ -47,7 +45,7 @@ class AnalysisType {
 
   @override
   String toString() =>
-      'AnalysisType(anaysisType: $anaysisType, isNeccessary: $isNeccessary, key: $key)';
+      'AnalysisType(anaysisType: $anaysisType, key: $key)';
 
   @override
   bool operator ==(Object other) {
@@ -55,11 +53,11 @@ class AnalysisType {
 
     return other is AnalysisType &&
         other.anaysisType == anaysisType &&
-        other.isNeccessary == isNeccessary &&
+
         other.key == key;
   }
 
   @override
   int get hashCode =>
-      anaysisType.hashCode ^ isNeccessary.hashCode ^ key.hashCode;
+      anaysisType.hashCode ^  key.hashCode;
 }
