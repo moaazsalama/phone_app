@@ -21,7 +21,7 @@ class AnalyzerProvider with ChangeNotifier {
     return false;
   }
 
-  void getData(String? uid) {
+  void getData(String uid) {
     this.userId = uid;
 
     notifyListeners();

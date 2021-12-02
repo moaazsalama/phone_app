@@ -32,7 +32,6 @@ class Orders with ChangeNotifier {
       await UserSheetApi.insertPcrTravel({
         'analysisName': orderItem.analysis.name,
         'price': orderItem.analysis.price,
-
         'analysisType': orderItem.analysis.analysisType.toString(),
         'analyzerId': orderItem.user.analyzerId,
         'analayzerName': orderItem.user.name,
@@ -150,7 +149,6 @@ class OrderItem {
   }
 
   Future<void> deliver(String resultUrl) async {
-
     await FirebaseFirestore.instance.collection('Orders').doc(id).update(
       {'isDeliverd': 'yes', 'resultUrl': resultUrl},
     );

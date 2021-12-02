@@ -15,16 +15,20 @@ class AuthProvider with ChangeNotifier {
   List<String> admins = [];
 
   Future googleLogin() async {
-    final googleUser = await googleSignin.signIn();
-    if (googleUser == null) return;
-    _googleSignInAccount = googleUser;
-    final googleAuth = await _googleSignInAccount!.authentication;
-    final credential = GoogleAuthProvider.credential(
-        accessToken: googleAuth.accessToken, idToken: googleAuth.idToken);
-    final userCredential = await auth.signInWithCredential(credential);
-    isNew = userCredential.additionalUserInfo!.isNewUser;
-    uid = userCredential.user!.uid;
-    notifyListeners();
+    try {
+      final googleUser = await googleSignin.signIn();
+      if (googleUser == null) return;
+      _googleSignInAccount = googleUser;
+      final googleAuth = await _googleSignInAccount!.authentication;
+      final credential = GoogleAuthProvider.credential(
+          accessToken: googleAuth.accessToken, idToken: googleAuth.idToken);
+      final userCredential = await auth.signInWithCredential(credential);
+      isNew = userCredential.additionalUserInfo!.isNewUser;
+      uid = userCredential.user!.uid;
+      notifyListeners();
+    } on Exception catch (e) {
+      print(e.toString());
+    }
   }
 
   Future<bool> sendOTP(String phoneNumber) async {

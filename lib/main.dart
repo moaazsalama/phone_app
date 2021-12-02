@@ -31,7 +31,7 @@ Future<void> main() async {
 }
 
 class App extends StatelessWidget {
-  //test
+  ///toz feekooo
   @override
   Widget build(BuildContext context) {
     return MultiProvider(
@@ -40,14 +40,17 @@ class App extends StatelessWidget {
           create: (context) => AuthProvider(),
         ),
         ChangeNotifierProxyProvider<AuthProvider, AnalyzerProvider>(
-          create: (context) => AnalyzerProvider(),
-          update: (context, authvalue, previous) =>
-              previous!..getData(authvalue.auth.currentUser!.uid),
-        ),
+            create: (context) => AnalyzerProvider(),
+            update: (context, authvalue, previous) {
+              if (authvalue.auth.currentUser == null) return AnalyzerProvider();
+              return previous!..getData(authvalue.auth.currentUser!.uid);
+            }),
         ChangeNotifierProxyProvider<AuthProvider, Orders>(
           create: (context) => Orders(),
-          update: (context, authvalue, previous) =>
-              previous!..getData(authvalue.auth.currentUser!.uid),
+          update: (context, authvalue, previous) {
+            if (authvalue.auth.currentUser == null) return Orders();
+            return previous!..getData(authvalue.auth.currentUser!.uid);
+          },
         )
       ],
       child: OKToast(
