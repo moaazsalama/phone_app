@@ -13,6 +13,7 @@ import 'package:phone_lap/pages/login_page.dart';
 import 'package:phone_lap/pages/orders_page.dart';
 import 'package:phone_lap/pages/otp_page.dart';
 import 'package:phone_lap/pages/pcr_data_page.dart';
+import 'package:phone_lap/pages/prescription_data.dart';
 import 'package:phone_lap/pages/search_page.dart';
 import 'package:phone_lap/providers/analyzer.dart';
 import 'package:phone_lap/providers/auth.dart';
@@ -147,6 +148,7 @@ class App extends StatelessWidget {
             BloodPage.routeName: (context) => const BloodPage(),
             SearchPage.routeName: (context) => SearchPage(),
             AdminPage.routeName: (context) => const AdminPage(),
+            PrescriptionData.routeName: (context) => PrescriptionData(),
           },
           home: Consumer<AuthProvider>(
             builder: (context, authProvider, child) {

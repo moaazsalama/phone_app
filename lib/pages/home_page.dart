@@ -12,6 +12,7 @@ import 'package:phone_lap/pages/blood_page.dart';
 import 'package:phone_lap/pages/confirm_page.dart';
 import 'package:phone_lap/pages/orders_page.dart';
 import 'package:phone_lap/pages/pcr_data_page.dart';
+import 'package:phone_lap/pages/prescription_data.dart';
 import 'package:phone_lap/pages/search_page.dart';
 import 'package:phone_lap/providers/analyzer.dart';
 import 'package:phone_lap/widgets/button.dart';
@@ -195,6 +196,13 @@ class _HomePageState extends State<HomePage> {
                         child: Row(
                           children: showAnalysis(context),
                         ),
+                      ),
+                      Button(
+                        title: 'Attach a presscription',
+                        onPressed: () {
+                          Navigator.pushNamed(
+                              context, PrescriptionData.routeName);
+                        },
                       ),
                     ],
                   ),
