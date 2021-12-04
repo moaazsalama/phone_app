@@ -15,7 +15,6 @@ class BloodPage extends StatefulWidget {
 }
 
 class _BloodPageState extends State<BloodPage> {
-  var pageIndex = 0;
   @override
   Widget build(BuildContext context) {
     final user = Provider.of<AnalyzerProvider>(context).analyzer;
@@ -117,9 +116,9 @@ class _BloodPageState extends State<BloodPage> {
                     color: Colors.red[300],
                     borderRadius: const BorderRadius.horizontal(
                         right: Radius.circular(15))),
-                child: Text(
-                  pageIndex == 0 ? 'Blood Analysis ' : 'Necessary Analysis',
-                  style: const TextStyle(
+                child: const Text(
+                  'Blood Analysis ',
+                  style: TextStyle(
                       color: Colors.white,
                       fontSize: 24,
                       fontWeight: FontWeight.bold),
@@ -127,8 +126,7 @@ class _BloodPageState extends State<BloodPage> {
               ),
               Expanded(
                 child: FutureBuilder<List<AnalysisType>>(
-                    future: UserSheetApi.fetchAnalysisTypes(
-                        isNecessary: pageIndex == 0 ? null : true),
+                    future: UserSheetApi.fetchAnalysisTypes(isNecessary: null),
                     builder: (context, snapshot) {
                       if (snapshot.connectionState == ConnectionState.waiting)
                         return const Center(
@@ -162,21 +160,6 @@ class _BloodPageState extends State<BloodPage> {
             ],
           )
         ],
-      ),
-      bottomNavigationBar: BottomNavigationBar(
-        items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.bloodtype), label: 'Blood'),
-          BottomNavigationBarItem(
-              icon: Icon(Icons.warning_amber_outlined), label: 'Necessary'),
-        ],
-        currentIndex: pageIndex,
-        onTap: (value) {
-          if (value != pageIndex) {
-            setState(() {
-              pageIndex = value;
-            });
-          }
-        },
       ),
     );
   }
