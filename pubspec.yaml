@@ -49,10 +49,13 @@ dependencies:
   country_code_picker: ^2.0.2
   pdf: ^3.6.3
   path_provider: 
-  file_picker: 
+  shared_preferences: ^2.0.11
+  file_picker:
+  carousel_slider: ^4.0.0 
+  url_launcher: ^6.0.17
   flutter_localizations:
     sdk: flutter
-    version: ^0.0.0
+
   material_floating_search_bar: ^0.3.6
 dev_dependencies:
   flutter_test:
@@ -62,12 +65,12 @@ dev_dependencies:
 flutter_icons:
   android: "launcher_icon"
   ios: true
-  image_path: "assets/img/splash.png"
+  image_path: "assets/img/logo.png"
   build_runner: 
   
 flutter_native_splash:
   color: "#ffffff"
-  image: 'assets/img/splash.png'
+  image: 'assets/img/logo.png'
   android: true
 
 # For information on the generic Dart part of this file, see the
@@ -80,7 +83,7 @@ flutter:
   # included with your application, so that you can use the icons in
   # the material Icons class.
   uses-material-design: true
-
+  generate: true
   # To add assets to your application, add an assets section, like this:
   assets:
     - assets/icon/
@@ -101,7 +104,12 @@ flutter:
   # "family" key with the font family name, and a "fonts" key with a
   # list giving the asset and other descriptors for the font. For
   # example:
-  # fonts:
+
+  fonts:
+    - family: Arabic
+      fonts:
+        - asset: assets/fonts/GE_SS_Unique_Light.otf
+
   #   - family: Schyler
   #     fonts:
   #       - asset: fonts/Schyler-Regular.ttf

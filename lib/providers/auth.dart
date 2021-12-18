@@ -26,14 +26,12 @@ class AuthProvider with ChangeNotifier {
       isNew = userCredential.additionalUserInfo!.isNewUser;
       uid = userCredential.user!.uid;
       notifyListeners();
-    } on Exception catch (e) {
-      print(e.toString());
-    }
+      // ignore: empty_catches
+    } on Exception {}
   }
 
   Future<bool> sendOTP(String phoneNumber) async {
     try {
-      print(phoneNumber);
       await FirebaseAuth.instance.verifyPhoneNumber(
           phoneNumber: phoneNumber,
           verificationCompleted: (PhoneAuthCredential credential) {
@@ -65,9 +63,8 @@ class AuthProvider with ChangeNotifier {
 
       notifyListeners();
       return true;
-    } catch (e) {
-      print('${e.toString()}');
-    }
+      // ignore: empty_catches
+    } catch (e) {}
     notifyListeners();
     return false;
   }
@@ -76,14 +73,13 @@ class AuthProvider with ChangeNotifier {
     admins = UserSheetApi.admins;
   }
 
-  bool isAdmin(String? email) {
+  Future<bool> isAdmin(String? email) async {
     if (email == null) return false;
-    return admins.contains(email);
+    final list = await UserSheetApi.fetchAdmins();
+    return list!.contains(email);
   }
 
   Future<void> signOut() async {
-    auth.authStateChanges().last.then((value) => print(value.toString()));
-
     return await auth.signOut();
   }
 }

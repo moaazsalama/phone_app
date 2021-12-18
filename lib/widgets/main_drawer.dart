@@ -1,7 +1,10 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:phone_lap/helpers/size_config.dart';
 import 'package:phone_lap/pages/orders_page.dart';
 import 'package:phone_lap/providers/analyzer.dart';
+import 'package:phone_lap/providers/languagesprovider.dart';
 import 'package:provider/provider.dart';
 
 class MainDrawer extends StatelessWidget {
@@ -9,13 +12,13 @@ class MainDrawer extends StatelessWidget {
     return ListTile(
       leading: Icon(
         icon,
-        size: 26,
+        size: getProportionScreenration(26),
       ),
       title: Text(
         title,
-        style: const TextStyle(
+        style: TextStyle(
           fontFamily: 'RobotoCondensed',
-          fontSize: 24,
+          fontSize: getProportionScreenration(24),
           fontWeight: FontWeight.bold,
         ),
       ),
@@ -28,6 +31,7 @@ class MainDrawer extends StatelessWidget {
     return Consumer<AnalyzerProvider>(
       builder: (context, val, child) {
         final user = val.analyzer;
+
         return Drawer(
           child: Column(
             children: <Widget>[
@@ -44,23 +48,62 @@ class MainDrawer extends StatelessWidget {
                               ? 'assets/icon/business-man.png'
                               : 'assets/icon/woman.png',
                           fit: BoxFit.cover),
-                      radius: 30,
+                      radius: getProportionScreenration(30),
                     ),
                   ),
-                  onDetailsPressed: () {
-                    print('hello');
-                  },
                   accountName: Text(user.name),
-                  accountEmail: Text('${user.email} ')),
+                  accountEmail: Text('${user.email}')),
               const SizedBox(
                 height: 20,
               ),
-              buildListTile('My Analysis', Icons.analytics_outlined, () {
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  Text(
+                    AppLocalizations.of(context)!.languages,
+                    style: const TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                  Consumer<LanguageChangeProvider>(
+                    builder: (BuildContext context, value, child) {
+                      final selects = <bool>[];
+                      selects.add(
+                          // ignore: avoid_bool_literals_in_conditional_expressions
+                          value.current!.languageCode == 'en' ? true : false);
+                      selects.add(
+                          // ignore: avoid_bool_literals_in_conditional_expressions
+                          value.current!.languageCode == 'en' ? false : true);
+                      return ToggleButtons(
+                        constraints: BoxConstraints(
+                          maxWidth: getProportionateScreenWidth(80),
+                          minWidth: getProportionateScreenWidth(40),
+                          maxHeight: getProportionateScreenWidth(80),
+                          minHeight: getProportionateScreenWidth(40),
+                        ),
+                        children: const [Text('EN'), Text('AR')],
+                        isSelected: selects,
+                        borderRadius: BorderRadius.circular(60),
+                        onPressed: (index) {
+                          if (index == 0) {
+                            if (!(value.current!.languageCode == 'en'))
+                              value.toggleLanguage();
+                          } else {
+                            if (!(value.current!.languageCode == 'ar'))
+                              value.toggleLanguage();
+                          }
+                        },
+                      );
+                    },
+                  ),
+                ],
+              ),
+              buildListTile(AppLocalizations.of(context)!.myanalysis,
+                  Icons.analytics_outlined, () {
                 Navigator.pushNamed(context, OrdersPage.routeName);
               }),
-              buildListTile('Logout', Icons.logout_outlined, () async {
+              buildListTile(
+                  AppLocalizations.of(context)!.logout, Icons.logout_outlined,
+                  () async {
                 await FirebaseAuth.instance.signOut();
-                print(FirebaseAuth.instance.currentUser!.displayName);
               }),
             ],
           ),

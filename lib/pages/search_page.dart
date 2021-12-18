@@ -1,6 +1,7 @@
 // ignore_for_file: prefer_final_fields
 
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:material_floating_search_bar/material_floating_search_bar.dart';
 import 'package:phone_lap/models/analysis.dart';
 import 'package:phone_lap/pages/blood_analysis_page.dart';
@@ -85,10 +86,10 @@ class _SearchPageState extends State<SearchPage> {
         transition: CircularFloatingSearchBarTransition(),
         physics: const BouncingScrollPhysics(),
         title: Text(
-          selectedTerm ?? 'Search for Analysis here...',
+          selectedTerm ?? AppLocalizations.of(context)!.searchanalysis,
           style: TextStyle(color: Theme.of(context).primaryColor),
         ),
-        hint: 'Search and find out...',
+        hint: AppLocalizations.of(context)!.searchfind,
         actions: [
           FloatingSearchBarAction.searchToClear(),
         ],
@@ -118,14 +119,12 @@ class _SearchPageState extends State<SearchPage> {
                       height: 56,
                       width: double.infinity,
                       alignment: Alignment.center,
-                      child: const Text('Start searching',
+                      child: Text(AppLocalizations.of(context)!.startsearching,
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
-                          style: TextStyle(color: Colors.white)),
+                          style: const TextStyle(color: Colors.white)),
                     );
                   } else if (filteredSearchHistory!.isEmpty) {
-                    print(filteredSearchHistory);
-                    print(controller!.query);
                     return ListTile(
                       title: Text(
                         controller!.query,
@@ -205,7 +204,7 @@ class SearchResultsListView extends StatelessWidget {
               size: 64,
             ),
             Text(
-              'Start searching',
+              AppLocalizations.of(context)!.startsearching,
               style: Theme.of(context).textTheme.headline5,
             )
           ],
@@ -225,16 +224,21 @@ class SearchResultsListView extends StatelessWidget {
           final List<Analysis> result = data!
               .where((element) => element.name.startsWith(searchTerm!))
               .toList();
-          return ListView(
-              padding: EdgeInsets.only(
-                  top: fsb!.value.height + fsb.value.margins.vertical),
-              children: result
-                  .map(
-                    (e) => AnalysisItem(e),
-                  )
-                  .toList());
+          if (result.isNotEmpty)
+            return ListView(
+                padding: EdgeInsets.only(
+                    top: fsb!.value.height + fsb.value.margins.vertical),
+                children: result
+                    .map(
+                      (e) => AnalysisItem(e),
+                    )
+                    .toList());
+          else
+            return Center(
+              child: Text(AppLocalizations.of(context)!.noresults),
+            );
         } else
-          return const Text('hi');
+          return Text(AppLocalizations.of(context)!.noconnection);
       },
     );
   }

@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:intl/intl.dart';
 import 'package:oktoast/oktoast.dart';
 import 'package:phone_lap/helpers/size_config.dart';
@@ -30,7 +31,7 @@ class _InfoScreenState extends State<InfoScreen> {
   GlobalKey<FormState> key = GlobalKey<FormState>();
   DateTime? selectedDate;
   bool isMale = true;
-  String city = 'Cario';
+  String? city;
   @override
   void initState() {
     super.initState();
@@ -42,6 +43,43 @@ class _InfoScreenState extends State<InfoScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final Map<String, String> list = {
+      'elmohandseen': AppLocalizations.of(context)!.elmohandseen,
+      'elzamalek': AppLocalizations.of(context)!.elzamalek,
+      'elharm': AppLocalizations.of(context)!.elharm,
+      'faisel': AppLocalizations.of(context)!.faisel,
+      'giza': AppLocalizations.of(context)!.giza,
+      'elagooza': AppLocalizations.of(context)!.elagooza,
+      'octobar': AppLocalizations.of(context)!.octobar,
+      'zayed': AppLocalizations.of(context)!.zayed,
+      'eltgm3': AppLocalizations.of(context)!.eltgm3,
+      'elrehab': AppLocalizations.of(context)!.elrehab,
+      'madenty': AppLocalizations.of(context)!.madenty,
+      'elshrouk': AppLocalizations.of(context)!.elshrouk,
+      'elmostkbal': AppLocalizations.of(context)!.elmostkbal,
+      'eldoki': AppLocalizations.of(context)!.eldoki,
+      'nasr': AppLocalizations.of(context)!.nasr,
+      'elmarg': AppLocalizations.of(context)!.elmarg,
+      'helwan': AppLocalizations.of(context)!.helwan,
+      'shobra': AppLocalizations.of(context)!.shobra,
+      'eltahrir': AppLocalizations.of(context)!.eltahrir,
+      'elmaadi': AppLocalizations.of(context)!.elmaadi,
+      'elsayda': AppLocalizations.of(context)!.elsayda,
+      'kerdasa': AppLocalizations.of(context)!.kerdasa,
+      'nahya': AppLocalizations.of(context)!.nahya,
+      'dahshoor': AppLocalizations.of(context)!.dahshoor,
+      'newgiza': AppLocalizations.of(context)!.newgiza,
+      'elnozha': AppLocalizations.of(context)!.elnozha,
+      'ainshams': AppLocalizations.of(context)!.ainshams,
+      'sherton': AppLocalizations.of(context)!.sherton,
+      'fayoum': AppLocalizations.of(context)!.fayoum,
+      'alex': AppLocalizations.of(context)!.alex
+    };
+
+    final values = list.values.toList();
+    final keys = list.keys.toList();
+    city ??= keys[0];
+
     SizeConfig().init(context);
     return Scaffold(
       body: SingleChildScrollView(
@@ -56,11 +94,11 @@ class _InfoScreenState extends State<InfoScreen> {
                     bottom: Radius.circular(20),
                   )),
               alignment: const Alignment(0, 0),
-              child: const Text(
-                'Your Information',
+              child: Text(
+                AppLocalizations.of(context)!.complete,
                 style: TextStyle(
                     color: Colors.white,
-                    fontSize: 20,
+                    fontSize: getProportionScreenration(20),
                     fontWeight: FontWeight.bold),
               ),
             ),
@@ -74,61 +112,68 @@ class _InfoScreenState extends State<InfoScreen> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     CustomTextField(
+                      length: 20,
                       controller: _nameController,
-                      labelText: 'Name',
-                      hintText: 'please write your name',
+                      labelText: AppLocalizations.of(context)!.name,
+                      hintText: AppLocalizations.of(context)!.hintname,
                       icon: Icons.account_circle_outlined,
                     ),
                     CustomTextField(
                       controller: _phoneController,
-                      labelText: 'Phone Number',
-                      hintText: 'please write your phone number',
+                      labelText: AppLocalizations.of(context)!.phoneNumber,
+                      hintText: AppLocalizations.of(context)!.hintNumber,
                       textInputType: TextInputType.phone,
                       icon: Icons.phone_outlined,
                     ),
                     CustomTextField(
                       controller: _emailController,
-                      labelText: 'Email',
-                      hintText: 'please write your name(Optional).',
+                      labelText: AppLocalizations.of(context)!.email,
+                      hintText: AppLocalizations.of(context)!.hintemail,
                       icon: Icons.email_outlined,
                       textInputType: TextInputType.emailAddress,
                     ),
                     Container(
                       width: SizeConfig.screenWidth,
                       child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              const Text(
-                                'Area',
-                                style: TextStyle(
-                                    color: Colors.black,
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 20),
-                              ),
-                              Container(
-                                decoration: BoxDecoration(
-                                    border: Border.all(
-                                        width: 1,
-                                        color: Theme.of(context).primaryColor),
-                                    borderRadius: BorderRadius.circular(15)),
-                                height: getProportionateScreenHeight(40),
-                                child: Padding(
+                          Expanded(
+                            flex: 2,
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  AppLocalizations.of(context)!.area,
+                                  style: TextStyle(
+                                      color: Colors.black,
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: getProportionScreenration(20)),
+                                ),
+                                Container(
+                                  decoration: BoxDecoration(
+                                      border: Border.all(
+                                          width: 1,
+                                          color:
+                                              Theme.of(context).primaryColor),
+                                      borderRadius: BorderRadius.circular(15)),
+                                  height: getProportionateScreenHeight(40),
                                   padding: const EdgeInsets.all(8.0),
-                                  child: DropdownButton(
-                                    isDense: false,
+                                  child: DropdownButton<String>(
+                                    // isExpanded: true,
                                     value: city,
-                                    items: ['Cario', 'Giza']
+                                    items: values
                                         .map((e) => DropdownMenuItem<String>(
                                               child: Text(
                                                 e,
                                                 style: TextStyle(
                                                     color: Theme.of(context)
                                                         .primaryColor,
-                                                    fontSize: 20),
+                                                    fontSize:
+                                                        getProportionScreenration(
+                                                            12)),
                                               ),
-                                              value: e,
+                                              value: keys[values.indexOf(e)],
                                             ))
                                         .toList(),
                                     onChanged: (String? value) {
@@ -138,13 +183,13 @@ class _InfoScreenState extends State<InfoScreen> {
                                     },
                                   ),
                                 ),
-                              ),
-                            ],
+                              ],
+                            ),
                           ),
                           Expanded(
+                            flex: 3,
                             child: CustomTextField(
-                              labelText: 'Address',
-                              hintText: 'Enter your address',
+                              labelText: AppLocalizations.of(context)!.adress,
                               controller: _addressController,
                               textInputType: TextInputType.streetAddress,
                               icon: Icons.location_city_outlined,
@@ -171,7 +216,7 @@ class _InfoScreenState extends State<InfoScreen> {
                               if (tryParse != null) {
                                 final parse = int.parse(last);
                                 if (parse > 2005) {
-                                  return 'No Avaliable under 16 years ';
+                                  return AppLocalizations.of(context)!.underage;
                                 }
                               }
                               return value;
@@ -179,15 +224,15 @@ class _InfoScreenState extends State<InfoScreen> {
                             decoration: InputDecoration(
                               errorStyle: const TextStyle(color: Colors.red),
                               suffixIcon: const Icon(Icons.calendar_today),
-                              labelText: 'Date',
+                              labelText: AppLocalizations.of(context)!.date,
                               enabled: false,
                               hintText: selectedDate == null
                                   ? null
                                   : selectedDate!.toIso8601String(),
-                              labelStyle: const TextStyle(
+                              labelStyle: TextStyle(
                                   color: Colors.black,
                                   fontWeight: FontWeight.bold,
-                                  fontSize: 20),
+                                  fontSize: getProportionScreenration(20)),
                               focusedBorder: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(20),
                                   borderSide: const BorderSide(
@@ -208,20 +253,22 @@ class _InfoScreenState extends State<InfoScreen> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceAround,
                       children: [
-                        const Text(
-                          'Gender',
-                          style: TextStyle(color: Colors.black, fontSize: 18),
+                        Text(
+                          AppLocalizations.of(context)!.gender,
+                          style: TextStyle(
+                              color: Colors.black,
+                              fontSize: getProportionScreenration(18)),
                         ),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             Column(
                               children: [
-                                const Text(
-                                  'Male',
+                                Text(
+                                  AppLocalizations.of(context)!.male,
                                   style: TextStyle(
                                       color: Colors.black,
-                                      fontSize: 16,
+                                      fontSize: getProportionScreenration(16),
                                       fontWeight: FontWeight.bold),
                                 ),
                                 Checkbox(
@@ -239,11 +286,11 @@ class _InfoScreenState extends State<InfoScreen> {
                             ),
                             Column(
                               children: [
-                                const Text(
-                                  'Female',
+                                Text(
+                                  AppLocalizations.of(context)!.female,
                                   style: TextStyle(
                                       color: Colors.black,
-                                      fontSize: 16,
+                                      fontSize: getProportionScreenration(16),
                                       fontWeight: FontWeight.bold),
                                 ),
                                 Checkbox(
@@ -261,7 +308,7 @@ class _InfoScreenState extends State<InfoScreen> {
                       ],
                     ),
                     Button(
-                      title: 'Save and Countinue',
+                      title: AppLocalizations.of(context)!.submittwo,
                       onPressed: onSave,
                     )
                   ],
@@ -279,22 +326,22 @@ class _InfoScreenState extends State<InfoScreen> {
         _addressController.text.isEmpty ||
         _phoneController.text.isEmpty) {
       showToast(
-        "Don't Let any Empty Feilds",
+        AppLocalizations.of(context)!.validatepcr,
         duration: const Duration(seconds: 2),
         position: ToastPosition.center,
         backgroundColor: Colors.black.withOpacity(0.8),
         radius: 3.0,
-        textStyle: const TextStyle(fontSize: 20.0),
+        textStyle: TextStyle(fontSize: getProportionScreenration(20.0)),
       );
     } else if (selectedDate!.year > 2005) {
       key.currentState!.validate();
       showToast(
-        'السن صغير',
+        AppLocalizations.of(context)!.underage,
         duration: const Duration(seconds: 2),
         position: ToastPosition.center,
         backgroundColor: Colors.black.withOpacity(0.8),
         radius: 3.0,
-        textStyle: const TextStyle(fontSize: 20.0),
+        textStyle: TextStyle(fontSize: getProportionScreenration(20.0)),
       );
     } else {
       Provider.of<AnalyzerProvider>(context, listen: false)
@@ -302,7 +349,7 @@ class _InfoScreenState extends State<InfoScreen> {
               analyzerId: widget.user.uid,
               name: _nameController.text,
               phone: _phoneController.text,
-              address: city + '-' + _addressController.text,
+              address: city! + '-' + _addressController.text,
               date: selectedDate.toString(),
               email: _emailController.text,
               gender: isMale))
@@ -329,7 +376,14 @@ class _InfoScreenState extends State<InfoScreen> {
       });
       return true;
     } catch (e) {
-      print(e.toString());
+      showToast(
+        AppLocalizations.of(context)!.noconnection,
+        duration: const Duration(seconds: 2),
+        position: ToastPosition.center,
+        backgroundColor: Colors.black.withOpacity(0.8),
+        radius: getProportionScreenration(3),
+        textStyle: TextStyle(fontSize: getProportionScreenration(20.0)),
+      );
     }
     return false;
   }

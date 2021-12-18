@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:phone_lap/helpers/size_config.dart';
 import 'package:phone_lap/models/analysisType.dart';
 import 'package:phone_lap/pages/blood_analysis_page.dart';
 import 'package:phone_lap/providers/analyzer.dart';
 import 'package:phone_lap/providers/google_sheets_Api.dart';
+import 'package:phone_lap/providers/languagesprovider.dart';
 import 'package:provider/provider.dart';
 
 class BloodPage extends StatefulWidget {
@@ -33,7 +35,12 @@ class _BloodPageState extends State<BloodPage> {
             ),
           ),
           Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+            crossAxisAlignment: Provider.of<LanguageChangeProvider>(context)
+                        .current!
+                        .languageCode ==
+                    'ar'
+                ? CrossAxisAlignment.end
+                : CrossAxisAlignment.start,
             children: [
               Container(
                 height: SizeConfig.orientation == Orientation.portrait
@@ -83,9 +90,9 @@ class _BloodPageState extends State<BloodPage> {
                         children: [
                           Text(
                             '${user.name}',
-                            style: const TextStyle(
+                            style: TextStyle(
                                 color: Colors.white,
-                                fontSize: 24,
+                                fontSize: getProportionScreenration(24),
                                 fontWeight: FontWeight.bold),
                           ),
                           SizedBox(
@@ -93,9 +100,9 @@ class _BloodPageState extends State<BloodPage> {
                           ),
                           Text(
                             '${user.phone}',
-                            style: const TextStyle(
+                            style: TextStyle(
                               color: Colors.white,
-                              fontSize: 16,
+                              fontSize: getProportionScreenration(16),
                             ),
                           ),
                         ],
@@ -116,11 +123,11 @@ class _BloodPageState extends State<BloodPage> {
                     color: Colors.red[300],
                     borderRadius: const BorderRadius.horizontal(
                         right: Radius.circular(15))),
-                child: const Text(
-                  'Blood Analysis ',
+                child: Text(
+                  AppLocalizations.of(context)!.myanalysis,
                   style: TextStyle(
                       color: Colors.white,
-                      fontSize: 24,
+                      fontSize: getProportionScreenration(24),
                       fontWeight: FontWeight.bold),
                 ),
               ),
@@ -145,7 +152,7 @@ class _BloodPageState extends State<BloodPage> {
                                 Text(
                                   'No Connection',
                                   style: TextStyle(
-                                      fontSize: 30,
+                                      fontSize: getProportionScreenration(30),
                                       fontWeight: FontWeight.bold,
                                       color: Theme.of(context).primaryColor),
                                 ),
@@ -191,14 +198,17 @@ class GridProducts extends StatelessWidget {
               Positioned(
                 left: getProportionateScreenWidth(10),
                 top: getProportionateScreenHeight(10),
-                child: Text(
-                  analysis[index].anaysisType,
-                  style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      decorationStyle: TextDecorationStyle.double,
-                      textBaseline: TextBaseline.alphabetic),
+                child: Hero(
+                  tag: analysis[index].anaysisType,
+                  child: Text(
+                    analysis[index].anaysisType,
+                    style: TextStyle(
+                        color: Colors.white,
+                        fontSize: getProportionScreenration(18),
+                        fontWeight: FontWeight.bold,
+                        decorationStyle: TextDecorationStyle.double,
+                        textBaseline: TextBaseline.alphabetic),
+                  ),
                 ),
               ),
               const Align(

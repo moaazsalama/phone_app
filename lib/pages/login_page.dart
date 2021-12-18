@@ -1,11 +1,15 @@
+// ignore_for_file: avoid_bool_literals_in_conditional_expressions
+
 import 'package:country_code_picker/country_code_picker.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:oktoast/oktoast.dart';
 import 'package:phone_lap/helpers/size_config.dart';
 import 'package:phone_lap/pages/otp_page.dart';
 import 'package:phone_lap/providers/auth.dart';
+import 'package:phone_lap/providers/languagesprovider.dart';
 import 'package:phone_lap/theme.dart';
 import 'package:provider/provider.dart';
 
@@ -35,10 +39,52 @@ class _LoginPageState extends State<LoginPage> {
                   children: <Widget>[
                     Center(
                       child: Container(
+                        alignment: Alignment.topLeft,
                         height: getProportionateScreenHeight(200),
                         constraints: BoxConstraints(
                           maxWidth: getProportionateScreenWidth(400),
                         ),
+                        child: Consumer<LanguageChangeProvider>(
+                          builder: (BuildContext context, value, child) {
+                            final selects = <bool>[];
+                            selects.add(value.current!.languageCode == 'en'
+                                ? true
+                                : false);
+                            selects.add(value.current!.languageCode == 'en'
+                                ? false
+                                : true);
+                            return ToggleButtons(
+                              constraints: BoxConstraints(
+                                maxWidth: getProportionateScreenWidth(80),
+                                minWidth: getProportionateScreenWidth(40),
+                                maxHeight: getProportionateScreenWidth(80),
+                                minHeight: getProportionateScreenWidth(40),
+                              ),
+                              children: const [
+                                Text('AR'),
+                                Text('EN'),
+                              ],
+                              isSelected: selects,
+                              borderRadius: BorderRadius.circular(60),
+                              onPressed: (index) {
+                                if (index == 1) {
+                                  if (!(value.current!.languageCode == 'en')) {
+                                    selects[index] = true;
+                                    selects[0] = false;
+                                    value.toggleLanguage();
+                                  }
+                                } else {
+                                  if (!(value.current!.languageCode == 'ar')) {
+                                    selects[index] = true;
+                                    selects[1] = false;
+                                    value.toggleLanguage();
+                                  }
+                                }
+                              },
+                            );
+                          },
+                        ),
+
                         //  margin: const EdgeInsets.only(top: 100),
                         decoration: const BoxDecoration(
                             color: Color(0xFFE1E0F5),
@@ -58,33 +104,52 @@ class _LoginPageState extends State<LoginPage> {
               ),
               Container(
                   margin: const EdgeInsets.symmetric(horizontal: 10),
-                  child: const Text('Phone Lap',
+                  child: Text('Phone Lap',
                       style: TextStyle(
                           color: MyColors.primaryColor,
-                          fontSize: 30,
-                          fontWeight: FontWeight.w800)))
+                          fontSize: getProportionScreenration(30),
+                          fontWeight: FontWeight.bold))),
+              Container(
+                height: getProportionateScreenHeight(60),
+                width: getProportionateScreenWidth(60),
+                decoration: BoxDecoration(
+                    borderRadius:
+                        BorderRadius.circular(getProportionScreenration(30)),
+                    image: const DecorationImage(
+                      image: AssetImage(
+                        'assets/img/logo.png',
+                      ),
+                    )),
+              )
             ],
           ),
           Column(
             children: <Widget>[
               Container(
                   constraints: BoxConstraints(
-                      maxWidth: getProportionateScreenWidth(180)),
+                      maxWidth: getProportionateScreenWidth(250)),
                   margin: const EdgeInsets.symmetric(horizontal: 10),
                   child: RichText(
                     textAlign: TextAlign.center,
-                    text: const TextSpan(children: <TextSpan>[
+                    text: TextSpan(children: <TextSpan>[
                       TextSpan(
-                          text: 'We will send you an ',
-                          style: TextStyle(color: MyColors.primaryColor)),
+                          text: AppLocalizations.of(context)!.sending,
+                          style: TextStyle(
+                            color: MyColors.primaryColor,
+                            fontSize: getProportionScreenration(18),
+                          )),
                       TextSpan(
-                          text: 'One Time Password ',
+                          text: AppLocalizations.of(context)!.onetime,
                           style: TextStyle(
                               color: MyColors.primaryColor,
+                              fontSize: getProportionScreenration(18),
                               fontWeight: FontWeight.bold)),
                       TextSpan(
-                          text: 'on this mobile number',
-                          style: TextStyle(color: MyColors.primaryColor)),
+                          text: AppLocalizations.of(context)!.mobile,
+                          style: TextStyle(
+                            color: MyColors.primaryColor,
+                            fontSize: getProportionScreenration(18),
+                          )),
                     ]),
                   )),
               Row(
@@ -92,7 +157,6 @@ class _LoginPageState extends State<LoginPage> {
                   CountryCodePicker(
                     onChanged: (value) {
                       countryCode = value.dialCode!;
-                      print(countryCode);
                     },
                     // Initial selection and favorite can be one of code ('IT') OR dial_code('+39')
                     initialSelection: 'EG',
@@ -131,7 +195,6 @@ class _LoginPageState extends State<LoginPage> {
                 child: ElevatedButton(
                   onPressed: () async {
                     FocusScope.of(context).unfocus();
-                    print(phoneController.text);
                     if (phoneController.text.isNotEmpty &&
                         isPhoneNoValid(phoneController.text)) {
                       try {
@@ -150,22 +213,25 @@ class _LoginPageState extends State<LoginPage> {
                               Theme.of(context).primaryColor.withOpacity(0.8),
                           animationCurve: Curves.easeIn,
                           animationDuration: const Duration(milliseconds: 500),
-                          radius: 3.0,
-                          textStyle: const TextStyle(
-                              fontSize: 20.0, color: Colors.black),
+                          radius: getProportionScreenration(3),
+                          textStyle: TextStyle(
+                              fontSize: getProportionScreenration(20.0),
+                              color: Colors.black),
                         );
                       }
                     } else {
-                      showToast('Unvalid phoneNumber ',
+                      showToast(
+                          AppLocalizations.of(context)!.unvalidphoneNumber,
                           duration: const Duration(seconds: 2),
                           position: ToastPosition.bottom,
                           backgroundColor:
                               Theme.of(context).primaryColor.withOpacity(0.8),
                           animationCurve: Curves.easeIn,
                           animationDuration: const Duration(milliseconds: 500),
-                          radius: 10.0,
-                          textStyle: const TextStyle(
-                              fontSize: 20.0, color: Colors.white),
+                          radius: getProportionScreenration(10),
+                          textStyle: TextStyle(
+                              fontSize: getProportionScreenration(20.0),
+                              color: Colors.white),
                           textAlign: TextAlign.center,
                           dismissOtherToast: true);
                     }
@@ -174,9 +240,9 @@ class _LoginPageState extends State<LoginPage> {
                     backgroundColor: MaterialStateProperty.resolveWith(
                         (states) => MyColors.primaryColor),
                     shape: MaterialStateProperty.resolveWith((states) =>
-                        const RoundedRectangleBorder(
-                            borderRadius:
-                                BorderRadius.all(Radius.circular(14)))),
+                        RoundedRectangleBorder(
+                            borderRadius: BorderRadius.all(Radius.circular(
+                                getProportionScreenration(14))))),
                   ),
                   child: Container(
                     padding:
@@ -184,9 +250,12 @@ class _LoginPageState extends State<LoginPage> {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: <Widget>[
-                        const Text(
-                          'Next',
-                          style: TextStyle(color: Colors.white),
+                        Text(
+                          AppLocalizations.of(context)!.next,
+                          style: TextStyle(
+                              color: Colors.white,
+                              fontSize: getProportionScreenration(24),
+                              fontWeight: FontWeight.bold),
                         ),
                         Container(
                           padding: const EdgeInsets.all(8),
@@ -194,10 +263,10 @@ class _LoginPageState extends State<LoginPage> {
                             borderRadius: BorderRadius.all(Radius.circular(20)),
                             color: MyColors.primaryColorLight,
                           ),
-                          child: const Icon(
+                          child: Icon(
                             Icons.arrow_forward_ios,
                             color: Colors.white,
-                            size: 16,
+                            size: getProportionScreenration(16),
                           ),
                         )
                       ],
@@ -205,10 +274,11 @@ class _LoginPageState extends State<LoginPage> {
                   ),
                 ),
               ),
-              const Center(child: Text('Or Sign with Google')),
-              Divider(
-                color: Theme.of(context).primaryColor,
-              ),
+              Center(
+                  child: Text(
+                AppLocalizations.of(context)!.signwithGoogle,
+                style: TextStyle(fontSize: getProportionScreenration(18)),
+              )),
               Container(
                 margin:
                     const EdgeInsets.symmetric(horizontal: 20, vertical: 10),

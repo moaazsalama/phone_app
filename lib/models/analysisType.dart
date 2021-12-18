@@ -6,7 +6,6 @@ class AnalysisType {
   final String key;
   AnalysisType({
     required this.anaysisType,
-
     required this.key,
   });
 
@@ -17,7 +16,6 @@ class AnalysisType {
   }) {
     return AnalysisType(
       anaysisType: anaysisType ?? this.anaysisType,
-
       key: key ?? this.key,
     );
   }
@@ -25,13 +23,11 @@ class AnalysisType {
   Map<String, dynamic> toMap() {
     return {
       'anaysisType': anaysisType,
-
       'key': key,
     };
   }
 
   factory AnalysisType.fromMap(Map<String, String> map) {
-    print('${map['isNeccessary']} from map ');
     return AnalysisType(
       anaysisType: map['anaysisType']!,
       key: map['key']!,
@@ -44,8 +40,7 @@ class AnalysisType {
       AnalysisType.fromMap(json.decode(source));
 
   @override
-  String toString() =>
-      'AnalysisType(anaysisType: $anaysisType, key: $key)';
+  String toString() => 'AnalysisType(anaysisType: $anaysisType, key: $key)';
 
   @override
   bool operator ==(Object other) {
@@ -53,11 +48,9 @@ class AnalysisType {
 
     return other is AnalysisType &&
         other.anaysisType == anaysisType &&
-
         other.key == key;
   }
 
   @override
-  int get hashCode =>
-      anaysisType.hashCode ^  key.hashCode;
+  int get hashCode => anaysisType.hashCode ^ key.hashCode;
 }

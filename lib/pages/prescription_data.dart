@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:oktoast/oktoast.dart';
 import 'package:phone_lap/helpers/size_config.dart';
@@ -19,8 +20,6 @@ class PrescriptionData extends StatefulWidget {
 }
 
 class _PrescriptionDataState extends State<PrescriptionData> {
-  final TextEditingController _lineController = TextEditingController();
-  final TextEditingController _countryController = TextEditingController();
   ImageProvider? image;
   final ImagePicker imagePicker = ImagePicker();
   File? _imageFile;
@@ -33,8 +32,6 @@ class _PrescriptionDataState extends State<PrescriptionData> {
       image = const AssetImage('assets/img/placeholder.png');
     else
       image = FileImage(_imageFile!);
-
-    print('dd');
   }
 
   @override
@@ -70,13 +67,13 @@ class _PrescriptionDataState extends State<PrescriptionData> {
                       SizedBox(
                         height: getProportionateScreenHeight(20),
                       ),
-                      const Text(
-                        'please wait seconds to compelete your request',
+                      Text(
+                        AppLocalizations.of(context)!.wait,
                         textAlign: TextAlign.center,
                         softWrap: true,
                         style: TextStyle(
                             color: Colors.white,
-                            fontSize: 16,
+                            fontSize: getProportionScreenration(16),
                             fontWeight: FontWeight.bold),
                       ),
                     ],
@@ -104,12 +101,15 @@ class _PrescriptionDataState extends State<PrescriptionData> {
                               Icons.arrow_back,
                               color: Colors.white,
                             )),
-                        const Text(
-                          'please compelete this information',
-                          style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold),
+                        Expanded(
+                          child: Text(
+                            AppLocalizations.of(context)!.complete,
+                            style: TextStyle(
+                                color: Colors.white,
+                                fontSize:
+                                    SizeConfig.screenWidth > 400 ? 20 : 16,
+                                fontWeight: FontWeight.bold),
+                          ),
                         ),
                       ],
                     ),
@@ -150,13 +150,13 @@ class _PrescriptionDataState extends State<PrescriptionData> {
                           SizedBox(
                             height: getProportionateScreenHeight(10),
                           ),
-                          const Padding(
-                            padding: EdgeInsets.all(8.0),
+                          Padding(
+                            padding: const EdgeInsets.all(8.0),
                             child: Text(
-                              'Please attach the Passport info ',
+                              AppLocalizations.of(context)!.qpassport,
                               style: TextStyle(
                                   color: Colors.red,
-                                  fontSize: 20,
+                                  fontSize: getProportionScreenration(20),
                                   fontWeight: FontWeight.bold),
                             ),
                           ),
@@ -165,9 +165,11 @@ class _PrescriptionDataState extends State<PrescriptionData> {
                             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                             children: [
                               Button(
-                                  width: getProportionateScreenWidth(150),
-                                  height: 60,
-                                  title: 'from Gallery',
+                                  //    width: getProportionateScreenWidth(150),
+                                  //     height: 60,
+                                  titleSize:
+                                      SizeConfig.screenWidth < 400 ? 16 : null,
+                                  title: AppLocalizations.of(context)!.gallery,
                                   onPressed: () async {
                                     try {
                                       final result =
@@ -181,13 +183,26 @@ class _PrescriptionDataState extends State<PrescriptionData> {
                                           image = FileImage(_imageFile!);
                                         });
                                     } catch (e) {
-                                      print(e.toString());
+                                      showToast(
+                                        AppLocalizations.of(context)!
+                                            .noconnection,
+                                        duration: const Duration(seconds: 2),
+                                        position: ToastPosition.center,
+                                        backgroundColor:
+                                            Colors.black.withOpacity(0.8),
+                                        radius: getProportionScreenration(3),
+                                        textStyle: TextStyle(
+                                            fontSize: getProportionScreenration(
+                                                20.0)),
+                                      );
                                     }
                                   }),
                               Button(
-                                  height: 60,
-                                  width: getProportionateScreenWidth(150),
-                                  title: 'from Camera',
+                                  //    height: 60,
+                                  //    width: getProportionateScreenWidth(150),
+                                  title: AppLocalizations.of(context)!.camera,
+                                  titleSize:
+                                      SizeConfig.screenWidth < 400 ? 16 : null,
                                   onPressed: () async {
                                     try {
                                       final result =
@@ -196,20 +211,30 @@ class _PrescriptionDataState extends State<PrescriptionData> {
 
                                       if (result != null)
                                         setState(() {
-                                          print(result.path);
                                           _imageFile = File(result.path);
                                           _pickedImage = _imageFile;
                                           image = FileImage(_imageFile!);
                                         });
                                     } catch (e) {
-                                      print(e.toString());
+                                      showToast(
+                                        AppLocalizations.of(context)!
+                                            .noconnection,
+                                        duration: const Duration(seconds: 2),
+                                        position: ToastPosition.center,
+                                        backgroundColor:
+                                            Colors.black.withOpacity(0.8),
+                                        radius: getProportionScreenration(3),
+                                        textStyle: TextStyle(
+                                            fontSize: getProportionScreenration(
+                                                20.0)),
+                                      );
                                     }
                                   }),
                             ],
                           ),
                           const Expanded(child: SizedBox()),
                           Button(
-                            title: 'Submit',
+                            title: AppLocalizations.of(context)!.submit,
                             onPressed: () {
                               onSubmit(provider.analyzer!);
                             },
@@ -227,14 +252,15 @@ class _PrescriptionDataState extends State<PrescriptionData> {
   Future<void> onSubmit(Analyzer user) async {
     if (_pickedImage == null) {
       showToast(
-        'please insert passport image',
+        AppLocalizations.of(context)!.qpassport,
         duration: const Duration(seconds: 2),
         position: ToastPosition.center,
         backgroundColor: Theme.of(context).primaryColor.withOpacity(0.8),
         animationCurve: Curves.easeIn,
         animationDuration: const Duration(milliseconds: 500),
         radius: 3.0,
-        textStyle: const TextStyle(fontSize: 20.0, color: Colors.black),
+        textStyle: TextStyle(
+            fontSize: getProportionScreenration(20.0), color: Colors.black),
       );
     } else {
       try {
@@ -262,9 +288,16 @@ class _PrescriptionDataState extends State<PrescriptionData> {
         var map = orderItem.toMap();
         map.remove('id');
         await Provider.of<Orders>(context, listen: false)
-            .sendOrder(orderItem, 'pcrTravel');
+            .sendOrder(orderItem, 'blood');
       } catch (e) {
-        print(e.toString());
+        showToast(
+          AppLocalizations.of(context)!.noconnection,
+          duration: const Duration(seconds: 2),
+          position: ToastPosition.center,
+          backgroundColor: Colors.black.withOpacity(0.8),
+          radius: getProportionScreenration(3),
+          textStyle: TextStyle(fontSize: getProportionScreenration(20.0)),
+        );
       }
 
       setState(() {
@@ -273,12 +306,12 @@ class _PrescriptionDataState extends State<PrescriptionData> {
 
       Navigator.pop(context);
       showToast(
-        'Request Sent Successfuly',
+        AppLocalizations.of(context)!.requestsuccessful,
         duration: const Duration(seconds: 2),
         position: ToastPosition.center,
         backgroundColor: Colors.black.withOpacity(0.8),
         radius: 3.0,
-        textStyle: const TextStyle(fontSize: 20.0),
+        textStyle: TextStyle(fontSize: getProportionScreenration(20.0)),
       );
     }
   }

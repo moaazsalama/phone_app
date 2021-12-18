@@ -1,12 +1,15 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:intl/intl.dart';
+import 'package:oktoast/oktoast.dart';
 import 'package:phone_lap/helpers/size_config.dart';
 import 'package:phone_lap/models/analysisType.dart';
 import 'package:phone_lap/providers/analyzer.dart';
 import 'package:phone_lap/providers/google_sheets_Api.dart';
 import 'package:phone_lap/providers/order.dart';
 import 'package:provider/provider.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class OrdersPage extends StatefulWidget {
   static String routeName = 'Orders-Page';
@@ -20,9 +23,8 @@ class _OrdersPageState extends State<OrdersPage> {
   late List<AnalysisType> typesList;
   @override
   void initState() {
-    print('hello');
     UserSheetApi.fetchAnalysisTypes().then((value) => typesList = value);
-    print('init');
+
     super.initState();
   }
 
@@ -64,11 +66,11 @@ class _OrdersPageState extends State<OrdersPage> {
                         Icons.arrow_back,
                         color: Colors.white,
                       )),
-                  const Text(
-                    'The Recent Analysis',
+                  Text(
+                    AppLocalizations.of(context)!.therecentorders,
                     style: TextStyle(
                         color: Colors.white,
-                        fontSize: 20,
+                        fontSize: getProportionScreenration(20),
                         fontWeight: FontWeight.bold),
                   ),
                 ],
@@ -80,39 +82,39 @@ class _OrdersPageState extends State<OrdersPage> {
                   if (snapshot.connectionState == ConnectionState.waiting) {
                     return const CircularProgressIndicator();
                   } else {
-                    final request =
-                        List.generate(snapshot.data!.docs.length, (index) {
-                      var orderItem =
-                          OrderItem.fromMap(snapshot.data!.docs[index].data());
-                      orderItem =
-                          orderItem.copyWith(id: snapshot.data!.docs[index].id);
-                      if (orderItem.user.analyzerId ==
+                    final docs = snapshot.data!.docs;
+                    final List<OrderItem> request = [];
+
+                    docs.forEach((element) {
+                      final orderItem = OrderItem.fromMap(element.data());
+                      final userId =
                           Provider.of<AnalyzerProvider>(context, listen: false)
-                              .userId)
-                      return orderItem;
+                              .userId;
+                      if (orderItem.user.analyzerId.contains(userId!))
+                        request.add(orderItem);
                     });
 
                     return Expanded(
                       child: Padding(
                         padding: const EdgeInsets.all(0.0),
                         child: request.isEmpty
-                            ? const Center(
+                            ? Center(
                                 child: Text(
-                                  'No Orders Yet',
+                                  AppLocalizations.of(context)!.noorders,
                                   style: TextStyle(
                                       color: Colors.white,
-                                      fontSize: 24,
+                                      fontSize: getProportionScreenration(24),
                                       fontWeight: FontWeight.bold),
                                 ),
                               )
                             : ListView.builder(
                                 padding: EdgeInsets.zero,
                                 itemBuilder: (context, index) {
-                                  return OrderWidget(request: request[index]!);
+                                  return OrderWidget(request: request[index]);
                                 },
                                 itemCount: request.length,
                               ),
-                      ),//hh
+                      ), //hh
                     );
                   }
                 }),
@@ -135,17 +137,15 @@ class OrderWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return Card(
       child: ExpansionTile(
-        collapsedBackgroundColor:
-            request.isDeliverd == 'no' ? Colors.red : Colors.green,
         subtitle: request.travlingCountry == null
             ? null
             : Text(
                 request.travlingCountry!,
                 textAlign: TextAlign.start,
                 softWrap: true,
-                style: const TextStyle(
+                style: TextStyle(
                     color: Colors.redAccent,
-                    fontSize: 20,
+                    fontSize: getProportionScreenration(20),
                     fontWeight: FontWeight.bold),
               ),
         title: Row(
@@ -153,12 +153,12 @@ class OrderWidget extends StatelessWidget {
           children: [
             Expanded(
               child: Text(
-                request.analysis.name.toUpperCase(),
+                request.analysis.name,
                 textAlign: TextAlign.start,
                 softWrap: true,
-                style: const TextStyle(
+                style: TextStyle(
                     color: Colors.black,
-                    fontSize: 20,
+                    fontSize: getProportionScreenration(20),
                     fontWeight: FontWeight.bold),
               ),
             ),
@@ -166,9 +166,9 @@ class OrderWidget extends StatelessWidget {
               '${DateFormat('y/M/d hh:mm ').add_j().format(request.dateTime)}',
               textAlign: TextAlign.start,
               softWrap: true,
-              style: const TextStyle(
+              style: TextStyle(
                   color: Colors.black,
-                  fontSize: 14,
+                  fontSize: getProportionScreenration(14),
                   fontWeight: FontWeight.w400),
             ),
           ],
@@ -181,13 +181,13 @@ class OrderWidget extends StatelessWidget {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Text(
-                    'PassPort Image',
+                  Text(
+                    AppLocalizations.of(context)!.passportimage,
                     textAlign: TextAlign.start,
                     softWrap: true,
                     style: TextStyle(
                         color: Colors.black,
-                        fontSize: 14,
+                        fontSize: getProportionScreenration(14),
                         fontWeight: FontWeight.w600),
                   ),
                   ClipRRect(
@@ -210,22 +210,22 @@ class OrderWidget extends StatelessWidget {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Text(
-                    'Travling Country',
+                  Text(
+                    AppLocalizations.of(context)!.travelcountry,
                     textAlign: TextAlign.start,
                     softWrap: true,
                     style: TextStyle(
                         color: Colors.black,
-                        fontSize: 14,
+                        fontSize: getProportionScreenration(14),
                         fontWeight: FontWeight.w600),
                   ),
                   Text(
                     request.travlingCountry!,
                     textAlign: TextAlign.start,
                     softWrap: true,
-                    style: const TextStyle(
+                    style: TextStyle(
                         color: Colors.black,
-                        fontSize: 14,
+                        fontSize: getProportionScreenration(14),
                         fontWeight: FontWeight.w600),
                   ),
                 ],
@@ -237,22 +237,22 @@ class OrderWidget extends StatelessWidget {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Text(
-                    'Flight Line',
+                  Text(
+                    AppLocalizations.of(context)!.flightline,
                     textAlign: TextAlign.start,
                     softWrap: true,
                     style: TextStyle(
                         color: Colors.black,
-                        fontSize: 14,
+                        fontSize: getProportionScreenration(14),
                         fontWeight: FontWeight.w600),
                   ),
                   Text(
                     request.flightLine!,
                     textAlign: TextAlign.start,
                     softWrap: true,
-                    style: const TextStyle(
+                    style: TextStyle(
                         color: Colors.black,
-                        fontSize: 14,
+                        fontSize: getProportionScreenration(14),
                         fontWeight: FontWeight.w600),
                   ),
                 ],
@@ -267,22 +267,22 @@ class OrderWidget extends StatelessWidget {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text(
-                  'Analysis Name',
+                Text(
+                  AppLocalizations.of(context)!.analysisname,
                   textAlign: TextAlign.start,
                   softWrap: true,
                   style: TextStyle(
                       color: Colors.black,
-                      fontSize: 14,
+                      fontSize: getProportionScreenration(14),
                       fontWeight: FontWeight.w600),
                 ),
                 Text(
                   request.analysis.name,
                   textAlign: TextAlign.start,
                   softWrap: true,
-                  style: const TextStyle(
+                  style: TextStyle(
                       color: Colors.black,
-                      fontSize: 14,
+                      fontSize: getProportionScreenration(14),
                       fontWeight: FontWeight.w600),
                 ),
               ],
@@ -293,27 +293,75 @@ class OrderWidget extends StatelessWidget {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text(
-                  'Prcie',
+                Text(
+                  AppLocalizations.of(context)!.price,
                   textAlign: TextAlign.start,
                   softWrap: true,
                   style: TextStyle(
                       color: Colors.black,
-                      fontSize: 14,
+                      fontSize: getProportionScreenration(14),
                       fontWeight: FontWeight.w600),
                 ),
                 Text(
-                  request.analysis.price,
+                  request.analysis.price.replaceAll('LE', '') +
+                      ' ' +
+                      AppLocalizations.of(context)!.le,
                   textAlign: TextAlign.start,
                   softWrap: true,
-                  style: const TextStyle(
+                  style: TextStyle(
                       color: Colors.black,
-                      fontSize: 14,
+                      fontSize: getProportionScreenration(14),
                       fontWeight: FontWeight.w600),
                 ),
               ],
             ),
           ),
+          if (request.resultUrl != null)
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    AppLocalizations.of(context)!.result,
+                    textAlign: TextAlign.start,
+                    softWrap: true,
+                    style: TextStyle(
+                        color: Colors.black,
+                        fontSize: getProportionScreenration(14),
+                        fontWeight: FontWeight.w600),
+                  ),
+                  TextButton(
+                    onPressed: () async {
+                      try {
+                        final Uri? tryParse = Uri.tryParse(request.resultUrl!);
+                        tryParse!.toString();
+                        await launch(request.resultUrl!, forceSafariVC: false);
+                      } on Exception {
+                        showToast(
+                          AppLocalizations.of(context)!.noconnection,
+                          duration: const Duration(seconds: 2),
+                          position: ToastPosition.center,
+                          backgroundColor: Colors.black.withOpacity(0.8),
+                          radius: getProportionScreenration(3),
+                          textStyle: TextStyle(
+                              fontSize: getProportionScreenration(20.0)),
+                        );
+                      }
+                    },
+                    child: Text(
+                      AppLocalizations.of(context)!.view,
+                      textAlign: TextAlign.start,
+                      softWrap: true,
+                      style: TextStyle(
+                          color: Colors.green,
+                          fontSize: getProportionScreenration(16),
+                          fontWeight: FontWeight.w600),
+                    ),
+                  ),
+                ],
+              ),
+            ),
         ],
       ),
     );

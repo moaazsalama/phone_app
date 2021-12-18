@@ -11,6 +11,7 @@ class CustomTextField extends StatelessWidget {
   // ignore: avoid_field_initializers_in_const_classes
   final TextInputType? textInputType;
   final IconData? icon;
+  final int? length;
   const CustomTextField({
     Key? key,
     this.controller,
@@ -19,17 +20,20 @@ class CustomTextField extends StatelessWidget {
     this.textInputType,
     this.child,
     this.icon,
+    this.length,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Container(
+      height: getProportionateScreenHeight(100),
       padding: EdgeInsets.symmetric(
-          horizontal: getProportionateScreenWidth(20),
-          vertical: getProportionateScreenHeight(20)),
+          horizontal: getProportionateScreenWidth(10),
+          vertical: getProportionateScreenHeight(10)),
       child: TextField(
         keyboardType: textInputType ?? TextInputType.text,
         controller: controller,
+        maxLength: length,
         decoration: InputDecoration(
           labelText: labelText,
           hintText: hintText,

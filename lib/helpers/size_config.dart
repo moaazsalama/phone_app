@@ -1,5 +1,3 @@
-// ignore_for_file: avoid_print
-
 import 'package:flutter/material.dart';
 
 class SizeConfig {
@@ -12,9 +10,9 @@ class SizeConfig {
   void init(BuildContext context) {
     _mediaQueryData = MediaQuery.of(context);
     screenWidth = _mediaQueryData.size.width;
-    print('$screenWidth');
+
     screenHeight = _mediaQueryData.size.height;
-    print('$screenHeight');
+
     orientation = _mediaQueryData.orientation;
   }
 }
@@ -31,6 +29,17 @@ double getProportionateScreenWidth(double inputWidth) {
   final double screenWidth = SizeConfig.screenWidth;
   // 375 is the layout width that designer use
   return (inputWidth / 392.72727272727275) * screenWidth;
+}
+
+double getProportionScreenration(double input) {
+  const pro = 1.988888888888877;
+  final test = SizeConfig.screenHeight / SizeConfig.screenWidth;
+
+  final result = test / pro;
+
+  final value = input * result;
+
+  return value;
 }
 
 class Styles {

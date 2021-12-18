@@ -49,8 +49,8 @@ class UserSheetApi {
       _bloodAnalysis =
           await _getWorkSheet(spreadsheet, title: 'Blood Analysis');
       _bloodOrders = await _getWorkSheet(spreadsheet, title: 'Blood (Orders)');
-      final list = await fetchAnalysis();
-      print(list.length);
+      await fetchAnalysis();
+
       _bloodAnalysisType =
           await _getWorkSheet(spreadsheet, title: 'Blood Analysis Type');
 
@@ -68,9 +68,8 @@ class UserSheetApi {
                           : false);
       _pcrNormalOrders!.values.insertRow(1, values);
       await fetchAdmins();
-    } catch (e) {
-      print(e.toString());
-    }
+      // ignore: empty_catches
+    } catch (e) {}
   }
 
   static Future<List<AnalysisType>> fetchAnalysisTypes(
@@ -78,17 +77,14 @@ class UserSheetApi {
     final List<Map<String, String>>? analysisTypes =
         await _bloodAnalysisType!.values.map.allRows(fromRow: 1);
 
-   return List.generate(analysisTypes!.length,
+    return List.generate(analysisTypes!.length,
         (index) => AnalysisType.fromMap(analysisTypes[index]));
-
-
-
   }
 
   static Future<List<Analysis>> fetchAnalysis({String? key}) async {
     final List<Map<String, String>>? analysis =
         await _bloodAnalysis!.values.map.allRows(fromRow: 1);
-    print(analysis);
+
     final List<Analysis> list = List.generate(
         analysis!.length, (index) => Analysis.fromMap(analysis[index]));
     if (key == null) {
@@ -98,12 +94,30 @@ class UserSheetApi {
     }
   }
 
-  static Future<void> fetchAdmins() async {
+  static Future<Map<String, dynamic>> slider() async {
+    final List<Map<String, String>>? analysis =
+        await _bloodAnalysis!.values.map.allRows(fromRow: 1);
+
+    final List<Analysis> analysisList = List.generate(
+        analysis!.length, (index) => Analysis.fromMap(analysis[index]));
+    final List<Map<String, String>>? analysisTypes =
+        await _bloodAnalysisType!.values.map.allRows(fromRow: 1);
+
+    final analysisTypeList = List.generate(analysisTypes!.length,
+        (index) => AnalysisType.fromMap(analysisTypes[index]));
+    final Map<String, dynamic> result = {
+      'analysis': analysisList,
+      'analysisType': analysisTypeList
+    };
+    return result;
+  }
+
+  static Future<List<String>?> fetchAdmins() async {
     if (admins.isEmpty) {
       final List<Map<String, String>>? data =
           await _admins!.values.map.allRows(fromRow: 1);
 
-      admins = List.generate(data!.length, (index) => data[index]['email']!);
+      return List.generate(data!.length, (index) => data[index]['email']!);
     }
   }
 

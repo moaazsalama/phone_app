@@ -1,3 +1,5 @@
+// ignore_for_file: unnecessary_null_comparison
+
 import 'dart:convert';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -8,6 +10,7 @@ import 'package:phone_lap/models/analyzer.dart';
 import 'google_sheets_Api.dart';
 
 class Orders with ChangeNotifier {
+  int? _servicePrice;
   String? userId;
   CollectionReference<Map<String, dynamic>>? requests;
   void getData(
@@ -18,16 +21,42 @@ class Orders with ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> sendOrder(OrderItem orderItem, String sheet) async {
-    final map = orderItem.toMap();
-    map.remove('id');
-    final id = await FirebaseFirestore.instance.collection('Orders').add(map);
-    map.addAll({'id': id.id});
+  int servicePrice(String area, String analysis) {
+    final cities = ['alex', 'fayoum', 'madenty', 'elrehab', 'eltgm3'];
+    if (cities.contains(area)) {
+      if (analysis.contains('pcr'))
+        return 150;
+      else
+        return 100;
+    } else {
+      if (analysis.contains('pcr'))
+        return 75;
+      else
+        return 50;
+    }
+  }
 
-    FirebaseFirestore.instance
-        .collection('Orders')
-        .doc(id.id)
-        .update({'id': id.id});
+  Future<bool> sendOrder(OrderItem orderItem, String sheet) async {
+    DocumentReference<Map<String, dynamic>>? id;
+    _servicePrice =
+        servicePrice(orderItem.user.address, orderItem.analysis.name);
+    try {
+      orderItem = orderItem.copyWith(
+          analysis: orderItem.analysis.copyWith(
+              price: (int.parse(orderItem.analysis.price) + _servicePrice!)
+                  .toString()));
+      final map = orderItem.toMap();
+      map.remove('id');
+      id = await FirebaseFirestore.instance.collection('Orders').add(map);
+      map.addAll({'id': id.id});
+
+      FirebaseFirestore.instance
+          .collection('Orders')
+          .doc(id.id)
+          .update({'id': id.id});
+    } on Exception {
+      rethrow;
+    }
     if (sheet.contains('pcrTravel')) {
       await UserSheetApi.insertPcrTravel({
         'analysisName': orderItem.analysis.name,
@@ -61,7 +90,6 @@ class Orders with ChangeNotifier {
         'dateTime': orderItem.dateTime.toString(),
       });
     } else if (sheet.contains('blood')) {
-      print(5);
       await UserSheetApi.insertBloodAnalysis({
         'analysisName': orderItem.analysis.name,
         'price': orderItem.analysis.price,
@@ -90,15 +118,18 @@ class Orders with ChangeNotifier {
         'dateTime': orderItem.dateTime.toString(),
       });
     }
+    if (id == null) {
+      return false;
+    } else {
+      return true;
+    }
   }
 
-  Stream<QuerySnapshot<Map<String, dynamic>>> fetchAllOrders() {
+  Stream<QuerySnapshot<Map<String, dynamic>>>? fetchAllOrders() {
     try {
       return requests!.orderBy('dateTime', descending: true).snapshots();
-    } catch (e) {
-      print(e.toString());
-      rethrow;
-    }
+      // ignore: empty_catches
+    } catch (e) {}
   }
 }
 
@@ -224,7 +255,6 @@ class OrderItem {
   static List<String> get values => [
         'analysisName',
         'price',
-        'isNecessary',
         'analysisType',
         'analyzerId',
         'analayzerName',

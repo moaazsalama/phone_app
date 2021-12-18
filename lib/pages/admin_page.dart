@@ -1,3 +1,5 @@
+// ignore_for_file: empty_catches
+
 import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -14,7 +16,9 @@ import 'package:phone_lap/providers/analyzer.dart';
 import 'package:phone_lap/providers/auth.dart';
 import 'package:phone_lap/providers/order.dart';
 import 'package:phone_lap/widgets/button.dart';
+import 'package:phone_lap/widgets/main_drawer.dart';
 import 'package:provider/provider.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class AdminPage extends StatefulWidget {
   static String routeName = 'admin-Page';
@@ -32,11 +36,10 @@ class _AdminPageState extends State<AdminPage> {
   bool isFirst = true;
   @override
   Widget build(BuildContext context) {
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        SizeConfig().init(context);
-        return Scaffold(
-            body: Stack(
+    SizeConfig().init(context);
+    return Scaffold(
+        drawer: MainDrawer(),
+        body: Stack(
           children: [
             Opacity(
               opacity: 0.2,
@@ -73,12 +76,12 @@ class _AdminPageState extends State<AdminPage> {
                             Icons.arrow_back,
                             color: Colors.white,
                           )),
-                      const Text(
+                      Text(
                         'Controll Panel',
                         textAlign: TextAlign.center,
                         style: TextStyle(
                             color: Colors.white,
-                            fontSize: 24,
+                            fontSize: getProportionScreenration(24),
                             fontWeight: FontWeight.bold),
                       ),
                     ],
@@ -96,12 +99,13 @@ class _AdminPageState extends State<AdminPage> {
                           child: Padding(
                             padding: const EdgeInsets.all(0.0),
                             child: docs.isEmpty
-                                ? const Center(
+                                ? Center(
                                     child: Text(
                                       'No Orders Yet',
                                       style: TextStyle(
                                           color: Colors.grey,
-                                          fontSize: 24,
+                                          fontSize:
+                                              getProportionScreenration(24),
                                           fontWeight: FontWeight.bold),
                                     ),
                                   )
@@ -125,18 +129,16 @@ class _AdminPageState extends State<AdminPage> {
             )
           ],
         ));
-      },
-    );
   }
 }
 
 class OrderWidgetAdmin extends StatefulWidget {
-  OrderWidgetAdmin({
+  const OrderWidgetAdmin({
     Key? key,
     required this.request,
   }) : super(key: key);
 
-  OrderItem request;
+  final OrderItem request;
 
   @override
   State<OrderWidgetAdmin> createState() => _OrderWidgetAdminState();
@@ -163,9 +165,9 @@ class _OrderWidgetAdminState extends State<OrderWidgetAdmin> {
                 widget.request.travlingCountry!,
                 textAlign: TextAlign.start,
                 softWrap: true,
-                style: const TextStyle(
+                style: TextStyle(
                     color: Colors.redAccent,
-                    fontSize: 20,
+                    fontSize: getProportionScreenration(20),
                     fontWeight: FontWeight.bold),
               ),
         title: Row(
@@ -176,9 +178,9 @@ class _OrderWidgetAdminState extends State<OrderWidgetAdmin> {
                 widget.request.analysis.name.toUpperCase(),
                 textAlign: TextAlign.start,
                 softWrap: true,
-                style: const TextStyle(
+                style: TextStyle(
                     color: Colors.black,
-                    fontSize: 20,
+                    fontSize: getProportionScreenration(20),
                     fontWeight: FontWeight.bold),
               ),
             ),
@@ -186,9 +188,9 @@ class _OrderWidgetAdminState extends State<OrderWidgetAdmin> {
               '${DateFormat('y/M/d hh:mm ').add_j().format(widget.request.dateTime)}',
               textAlign: TextAlign.start,
               softWrap: true,
-              style: const TextStyle(
+              style: TextStyle(
                   color: Colors.black,
-                  fontSize: 14,
+                  fontSize: getProportionScreenration(14),
                   fontWeight: FontWeight.w400),
             ),
           ],
@@ -201,24 +203,29 @@ class _OrderWidgetAdminState extends State<OrderWidgetAdmin> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Text(
+                  Text(
                     'PassPort Image',
                     textAlign: TextAlign.start,
                     softWrap: true,
                     style: TextStyle(
                         color: Colors.black,
-                        fontSize: 14,
+                        fontSize: getProportionScreenration(14),
                         fontWeight: FontWeight.w600),
                   ),
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(40),
-                    child: Image(
-                      image: NetworkImage(
-                        widget.request.passportImageUrl!,
+                  InkWell(
+                    onTap: () async {
+                      await launch(widget.request.passportImageUrl!);
+                    },
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(40),
+                      child: Image(
+                        image: NetworkImage(
+                          widget.request.passportImageUrl!,
+                        ),
+                        fit: BoxFit.cover,
+                        height: getProportionateScreenHeight(80),
+                        width: getProportionateScreenWidth(80),
                       ),
-                      fit: BoxFit.cover,
-                      height: getProportionateScreenHeight(80),
-                      width: getProportionateScreenWidth(80),
                     ),
                   ),
                 ],
@@ -230,22 +237,22 @@ class _OrderWidgetAdminState extends State<OrderWidgetAdmin> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Text(
+                  Text(
                     'Travling Country',
                     textAlign: TextAlign.start,
                     softWrap: true,
                     style: TextStyle(
                         color: Colors.black,
-                        fontSize: 14,
+                        fontSize: getProportionScreenration(14),
                         fontWeight: FontWeight.w600),
                   ),
                   Text(
                     widget.request.travlingCountry!,
                     textAlign: TextAlign.start,
                     softWrap: true,
-                    style: const TextStyle(
+                    style: TextStyle(
                         color: Colors.black,
-                        fontSize: 14,
+                        fontSize: getProportionScreenration(14),
                         fontWeight: FontWeight.w600),
                   ),
                 ],
@@ -257,22 +264,22 @@ class _OrderWidgetAdminState extends State<OrderWidgetAdmin> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Text(
+                  Text(
                     'Flight Line',
                     textAlign: TextAlign.start,
                     softWrap: true,
                     style: TextStyle(
                         color: Colors.black,
-                        fontSize: 14,
+                        fontSize: getProportionScreenration(14),
                         fontWeight: FontWeight.w600),
                   ),
                   Text(
                     widget.request.flightLine!,
                     textAlign: TextAlign.start,
                     softWrap: true,
-                    style: const TextStyle(
+                    style: TextStyle(
                         color: Colors.black,
-                        fontSize: 14,
+                        fontSize: getProportionScreenration(14),
                         fontWeight: FontWeight.w600),
                   ),
                 ],
@@ -287,22 +294,22 @@ class _OrderWidgetAdminState extends State<OrderWidgetAdmin> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text(
+                Text(
                   'Analysis Name',
                   textAlign: TextAlign.start,
                   softWrap: true,
                   style: TextStyle(
                       color: Colors.black,
-                      fontSize: 14,
+                      fontSize: getProportionScreenration(14),
                       fontWeight: FontWeight.w600),
                 ),
                 Text(
                   widget.request.analysis.name,
                   textAlign: TextAlign.start,
                   softWrap: true,
-                  style: const TextStyle(
+                  style: TextStyle(
                       color: Colors.black,
-                      fontSize: 14,
+                      fontSize: getProportionScreenration(14),
                       fontWeight: FontWeight.w600),
                 ),
               ],
@@ -313,22 +320,22 @@ class _OrderWidgetAdminState extends State<OrderWidgetAdmin> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text(
+                Text(
                   'Prcie',
                   textAlign: TextAlign.start,
                   softWrap: true,
                   style: TextStyle(
                       color: Colors.black,
-                      fontSize: 14,
+                      fontSize: getProportionScreenration(14),
                       fontWeight: FontWeight.w600),
                 ),
                 Text(
                   widget.request.analysis.price,
                   textAlign: TextAlign.start,
                   softWrap: true,
-                  style: const TextStyle(
+                  style: TextStyle(
                       color: Colors.black,
-                      fontSize: 14,
+                      fontSize: getProportionScreenration(14),
                       fontWeight: FontWeight.w600),
                 ),
               ],
@@ -339,22 +346,48 @@ class _OrderWidgetAdminState extends State<OrderWidgetAdmin> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text(
+                Text(
+                  'Analyzer Name',
+                  textAlign: TextAlign.start,
+                  softWrap: true,
+                  style: TextStyle(
+                      color: Colors.black,
+                      fontSize: getProportionScreenration(14),
+                      fontWeight: FontWeight.w600),
+                ),
+                Text(
+                  widget.request.user.name,
+                  textAlign: TextAlign.start,
+                  softWrap: true,
+                  style: TextStyle(
+                      color: Colors.black,
+                      fontSize: getProportionScreenration(14),
+                      fontWeight: FontWeight.w600),
+                ),
+              ],
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
                   'Analyzer Phone',
                   textAlign: TextAlign.start,
                   softWrap: true,
                   style: TextStyle(
                       color: Colors.black,
-                      fontSize: 14,
+                      fontSize: getProportionScreenration(14),
                       fontWeight: FontWeight.w600),
                 ),
                 Text(
                   widget.request.user.phone,
                   textAlign: TextAlign.start,
                   softWrap: true,
-                  style: const TextStyle(
+                  style: TextStyle(
                       color: Colors.black,
-                      fontSize: 14,
+                      fontSize: getProportionScreenration(14),
                       fontWeight: FontWeight.w600),
                 ),
               ],
@@ -365,22 +398,22 @@ class _OrderWidgetAdminState extends State<OrderWidgetAdmin> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text(
+                Text(
                   'Analyzer Address',
                   textAlign: TextAlign.start,
                   softWrap: true,
                   style: TextStyle(
                       color: Colors.black,
-                      fontSize: 14,
+                      fontSize: getProportionScreenration(14),
                       fontWeight: FontWeight.w600),
                 ),
                 Text(
                   widget.request.user.address,
                   textAlign: TextAlign.start,
                   softWrap: true,
-                  style: const TextStyle(
+                  style: TextStyle(
                       color: Colors.black,
-                      fontSize: 14,
+                      fontSize: getProportionScreenration(14),
                       fontWeight: FontWeight.w600),
                 ),
               ],
@@ -391,22 +424,22 @@ class _OrderWidgetAdminState extends State<OrderWidgetAdmin> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text(
+                Text(
                   'Analyzer Gender',
                   textAlign: TextAlign.start,
                   softWrap: true,
                   style: TextStyle(
                       color: Colors.black,
-                      fontSize: 14,
+                      fontSize: getProportionScreenration(14),
                       fontWeight: FontWeight.w600),
                 ),
                 Text(
                   widget.request.user.gender ? 'Male' : 'Female',
                   textAlign: TextAlign.start,
                   softWrap: true,
-                  style: const TextStyle(
+                  style: TextStyle(
                       color: Colors.black,
-                      fontSize: 14,
+                      fontSize: getProportionScreenration(14),
                       fontWeight: FontWeight.w600),
                 ),
               ],
@@ -417,22 +450,22 @@ class _OrderWidgetAdminState extends State<OrderWidgetAdmin> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text(
+                Text(
                   'Analyzer Date',
                   textAlign: TextAlign.start,
                   softWrap: true,
                   style: TextStyle(
                       color: Colors.black,
-                      fontSize: 14,
+                      fontSize: getProportionScreenration(14),
                       fontWeight: FontWeight.w600),
                 ),
                 Text(
                   widget.request.user.date,
                   textAlign: TextAlign.start,
                   softWrap: true,
-                  style: const TextStyle(
+                  style: TextStyle(
                       color: Colors.black,
-                      fontSize: 14,
+                      fontSize: getProportionScreenration(14),
                       fontWeight: FontWeight.w600),
                 ),
               ],
@@ -443,22 +476,22 @@ class _OrderWidgetAdminState extends State<OrderWidgetAdmin> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text(
+                Text(
                   'Analsis Is Deliverd ?!',
                   textAlign: TextAlign.start,
                   softWrap: true,
                   style: TextStyle(
                       color: Colors.black,
-                      fontSize: 14,
+                      fontSize: getProportionScreenration(14),
                       fontWeight: FontWeight.w600),
                 ),
                 Text(
                   widget.request.isDeliverd.toUpperCase(),
                   textAlign: TextAlign.start,
                   softWrap: true,
-                  style: const TextStyle(
+                  style: TextStyle(
                       color: Colors.black,
-                      fontSize: 14,
+                      fontSize: getProportionScreenration(14),
                       fontWeight: FontWeight.w600),
                 ),
               ],
@@ -469,13 +502,13 @@ class _OrderWidgetAdminState extends State<OrderWidgetAdmin> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text(
+                Text(
                   'Result Link',
                   textAlign: TextAlign.start,
                   softWrap: true,
                   style: TextStyle(
                       color: Colors.black,
-                      fontSize: 14,
+                      fontSize: getProportionScreenration(14),
                       fontWeight: FontWeight.w600),
                 ),
                 SizedBox(
@@ -485,9 +518,9 @@ class _OrderWidgetAdminState extends State<OrderWidgetAdmin> {
                     textAlign: TextAlign.start,
                     softWrap: true,
                     overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
+                    style: TextStyle(
                         color: Colors.black,
-                        fontSize: 14,
+                        fontSize: getProportionScreenration(14),
                         fontWeight: FontWeight.w600),
                   ),
                 ),
@@ -502,14 +535,11 @@ class _OrderWidgetAdminState extends State<OrderWidgetAdmin> {
                       await imagePicker.pickImage(source: ImageSource.gallery);
 
                   if (result != null) _imageFile = File(result.path);
-                  print('${_imageFile!.path}');
                   createpdf(_imageFile);
                   await savepdf(widget.request.id!);
                   final url = await uploadPdf(context);
                   await widget.request.deliver(url);
-                } catch (e) {
-                  print(e.toString());
-                }
+                } catch (e) {}
               }),
           Button(
               title: 'Send The Resuilt By PDF ',
@@ -520,15 +550,8 @@ class _OrderWidgetAdminState extends State<OrderWidgetAdmin> {
                     finalpdf = File(pickFiles.files.single.path!);
                     final url = await uploadPdf(context);
                     await widget.request.deliver(url);
-                    widget.request = widget.request
-                        .copyWith(resultUrl: url, isDeliverd: 'yes');
-                    setState(() {});
                   }
-                } on Exception {
-
-                }
-
-                print(widget.request.id);
+                } on Exception {}
               })
         ],
       ),
@@ -553,16 +576,14 @@ class _OrderWidgetAdminState extends State<OrderWidgetAdmin> {
         .child('${analyzer!}/${finalpdf!.path.split('/').last}')
         .putFile(finalpdf!);
     final String url = await task.ref.getDownloadURL();
-    print(url);
+
     return url;
   }
 
   Future<void> savepdf(String name) async {
     final dir = await getExternalStorageDirectory();
     final file = File('${dir!.path}/$name.pdf');
-    print(file.path);
 
     finalpdf = await file.writeAsBytes(await pdf.save());
-    print('sucess');
   }
 }

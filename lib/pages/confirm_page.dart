@@ -1,11 +1,13 @@
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:oktoast/oktoast.dart';
 import 'package:phone_lap/helpers/size_config.dart';
 import 'package:phone_lap/models/analysis.dart';
 import 'package:phone_lap/pages/pcr_data_page.dart';
 import 'package:phone_lap/providers/analyzer.dart';
+import 'package:phone_lap/providers/languagesprovider.dart';
 import 'package:phone_lap/providers/order.dart';
 import 'package:phone_lap/widgets/button.dart';
 import 'package:provider/provider.dart';
@@ -58,6 +60,13 @@ class _ConfirmPageState extends State<ConfirmPage> {
                       ),
                     ),
                     child: Row(
+                      mainAxisAlignment:
+                          Provider.of<LanguageChangeProvider>(context)
+                                      .current!
+                                      .languageCode ==
+                                  'ar'
+                              ? MainAxisAlignment.end
+                              : MainAxisAlignment.start,
                       children: [
                         IconButton(
                             onPressed: () => Navigator.pop(context),
@@ -94,9 +103,9 @@ class _ConfirmPageState extends State<ConfirmPage> {
                             children: [
                               Text(
                                 '${user.name}',
-                                style: const TextStyle(
+                                style: TextStyle(
                                     color: Colors.white,
-                                    fontSize: 24,
+                                    fontSize: getProportionScreenration(24),
                                     fontWeight: FontWeight.bold),
                               ),
                               SizedBox(
@@ -104,9 +113,9 @@ class _ConfirmPageState extends State<ConfirmPage> {
                               ),
                               Text(
                                 '${user.phone}',
-                                style: const TextStyle(
+                                style: TextStyle(
                                   color: Colors.white,
-                                  fontSize: 16,
+                                  fontSize: getProportionScreenration(16),
                                 ),
                               ),
                             ],
@@ -121,7 +130,13 @@ class _ConfirmPageState extends State<ConfirmPage> {
                   Expanded(
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.start,
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                      crossAxisAlignment:
+                          Provider.of<LanguageChangeProvider>(context)
+                                      .current!
+                                      .languageCode ==
+                                  'ar'
+                              ? CrossAxisAlignment.end
+                              : CrossAxisAlignment.start,
                       children: [
                         Container(
                           width: getProportionateScreenWidth(200),
@@ -132,11 +147,11 @@ class _ConfirmPageState extends State<ConfirmPage> {
                               color: Colors.red[300],
                               borderRadius: const BorderRadius.horizontal(
                                   right: Radius.circular(15))),
-                          child: const Text(
-                            'PCR Analysis ',
+                          child: Text(
+                            AppLocalizations.of(context)!.pcranalysis,
                             style: TextStyle(
                                 color: Colors.white,
-                                fontSize: 24,
+                                fontSize: getProportionScreenration(24),
                                 fontWeight: FontWeight.bold),
                           ),
                         ),
@@ -166,12 +181,12 @@ class _ConfirmPageState extends State<ConfirmPage> {
                                           Orientation.portrait
                                       ? SizeConfig.screenWidth * 0.75
                                       : SizeConfig.screenWidth * 0.4,
-                                  child: const Text(
-                                    'Chose The Reason for Analysis ?',
+                                  child: Text(
+                                    AppLocalizations.of(context)!.reason,
                                     textAlign: TextAlign.center,
                                     style: TextStyle(
                                         color: Colors.black,
-                                        fontSize: 24,
+                                        fontSize: getProportionScreenration(24),
                                         fontWeight: FontWeight.bold),
                                   ),
                                 ),
@@ -179,9 +194,11 @@ class _ConfirmPageState extends State<ConfirmPage> {
                                   height: SizeConfig.screenHeight * .01,
                                 ),
                                 Button(
+                                    titleSize: getProportionScreenration(14),
                                     width: getProportionateScreenWidth(200),
                                     height: getProportionateScreenHeight(70),
-                                    title: 'PCR For Reassurance',
+                                    title: AppLocalizations.of(context)!
+                                        .reassurance,
                                     onPressed: () async {
                                       setState(() {
                                         isLoading = true;
@@ -189,7 +206,6 @@ class _ConfirmPageState extends State<ConfirmPage> {
                                       final analysis = Analysis(
                                           name: 'PCR',
                                           price: '70LE',
-
                                           analysisType: 'PCR');
                                       final user =
                                           Provider.of<AnalyzerProvider>(context,
@@ -209,14 +225,17 @@ class _ConfirmPageState extends State<ConfirmPage> {
                                           () {
                                         Navigator.pop(context);
                                         showToast(
-                                          'Request Sent Successfuly',
+                                          AppLocalizations.of(context)!
+                                              .requestsuccessful,
                                           duration: const Duration(seconds: 2),
                                           position: ToastPosition.center,
                                           backgroundColor:
                                               Colors.black.withOpacity(0.8),
                                           radius: 3.0,
-                                          textStyle:
-                                              const TextStyle(fontSize: 20.0),
+                                          textStyle: TextStyle(
+                                              fontSize:
+                                                  getProportionScreenration(
+                                                      20.0)),
                                         );
                                       });
                                     }),
@@ -224,9 +243,10 @@ class _ConfirmPageState extends State<ConfirmPage> {
                                   height: SizeConfig.screenHeight * .01,
                                 ),
                                 Button(
+                                    titleSize: getProportionScreenration(14),
                                     width: getProportionateScreenWidth(200),
                                     height: getProportionateScreenHeight(70),
-                                    title: 'PCR For Travling',
+                                    title: AppLocalizations.of(context)!.travel,
                                     onPressed: () {
                                       Navigator.pushReplacementNamed(
                                           context, PcrDataScreen.routName);
@@ -262,23 +282,26 @@ class _ConfirmPageState extends State<ConfirmPage> {
                       child: RichText(
                         textAlign: TextAlign.center,
                         text: TextSpan(
-                            style: const TextStyle(
+                            style: TextStyle(
                                 color: Colors.white,
-                                fontSize: 20,
+                                fontSize: getProportionScreenration(20),
                                 fontWeight: FontWeight.bold),
-                            text: 'Our Team Will Call you Soon\n ',
+                            text: AppLocalizations.of(context)!.soon,
                             children: [
                               TextSpan(
-                                  text: user!.gender ? 'Mr ' : 'Mrs ',
-                                  style: const TextStyle(
+                                  text: (user!.gender
+                                          ? AppLocalizations.of(context)!.mr
+                                          : AppLocalizations.of(context)!.mrs) +
+                                      ' ',
+                                  style: TextStyle(
                                       color: Colors.white,
-                                      fontSize: 22,
+                                      fontSize: getProportionScreenration(22),
                                       fontWeight: FontWeight.w700)),
                               TextSpan(
                                   text: '${user.name}',
-                                  style: const TextStyle(
+                                  style: TextStyle(
                                       color: Colors.red,
-                                      fontSize: 24,
+                                      fontSize: getProportionScreenration(24),
                                       fontWeight: FontWeight.w900))
                             ]),
                       ),

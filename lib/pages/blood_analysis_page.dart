@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:phone_lap/helpers/size_config.dart';
 import 'package:phone_lap/models/analysis.dart';
 import 'package:phone_lap/models/analysisType.dart';
@@ -34,7 +35,7 @@ class BloodAnalysisPage extends StatelessWidget {
             children: [
               Container(
                 height: SizeConfig.orientation == Orientation.portrait
-                    ? SizeConfig.screenHeight * 0.10
+                    ? SizeConfig.screenHeight * 0.12
                     : SizeConfig.screenHeight * 0.25,
                 decoration: BoxDecoration(
                   color: Theme.of(context).primaryColor,
@@ -46,7 +47,7 @@ class BloodAnalysisPage extends StatelessWidget {
                 child: Stack(
                   children: [
                     Align(
-                      alignment: Alignment.bottomLeft,
+                      alignment: const Alignment(-0.9, 1),
                       child: IconButton(
                           onPressed: () => Navigator.pop(context),
                           icon: const Icon(
@@ -55,13 +56,16 @@ class BloodAnalysisPage extends StatelessWidget {
                           )),
                     ),
                     Align(
-                      alignment: const Alignment(0, 0.7),
-                      child: Text(
-                        '${type.anaysisType}',
-                        style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 24,
-                            fontWeight: FontWeight.bold),
+                      alignment: const Alignment(0, 0.5),
+                      child: Hero(
+                        tag: type.anaysisType,
+                        child: Text(
+                          '${type.anaysisType}',
+                          style: TextStyle(
+                              color: Colors.white,
+                              fontSize: getProportionScreenration(24),
+                              fontWeight: FontWeight.bold),
+                        ),
                       ),
                     ),
                   ],
@@ -97,7 +101,7 @@ class AnalysisItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: 200,
+      height: getProportionateScreenHeight(200),
       child: InkWell(
         onTap: () {
           showModalBottomSheet(
@@ -113,12 +117,12 @@ class AnalysisItem extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     Text(
-                      'Are You Sure about order !?',
+                      AppLocalizations.of(context)!.sure,
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         color: Theme.of(context).primaryColor,
                         fontWeight: FontWeight.bold,
-                        fontSize: 20,
+                        fontSize: getProportionScreenration(20),
                       ),
                     ),
                     SizedBox(
@@ -128,7 +132,7 @@ class AnalysisItem extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: [
                         Button(
-                          title: 'Yes',
+                          title: AppLocalizations.of(context)!.yes,
                           onPressed: () async {
                             final analyzer = Provider.of<AnalyzerProvider>(
                                     context,
@@ -142,12 +146,12 @@ class AnalysisItem extends StatelessWidget {
                                         id: 'uid',
                                         dateTime: DateTime.now(),
                                         isDeliverd: 'no'),
-                                   'blood');
+                                    'blood');
                             Navigator.pop(context);
                           },
                         ),
                         Button(
-                          title: 'No',
+                          title: AppLocalizations.of(context)!.no,
                           onPressed: () {
                             Navigator.pop(context);
                           },
@@ -187,15 +191,14 @@ class AnalysisItem extends StatelessWidget {
                       bottom: 20,
                       left: 10,
                       child: Container(
+                        width: SizeConfig.screenWidth * 0.60,
                         color: Colors.black54,
-                        padding: const EdgeInsets.symmetric(
-                          vertical: 5,
-                          horizontal: 20,
-                        ),
+                        padding: const EdgeInsets.all(5),
                         child: Text(
                           analysis.name,
-                          style: const TextStyle(
-                            fontSize: 26,
+                          textAlign: TextAlign.left,
+                          style: TextStyle(
+                            fontSize: getProportionScreenration(26),
                             color: Colors.white,
                           ),
                           softWrap: true,
@@ -209,32 +212,33 @@ class AnalysisItem extends StatelessWidget {
               Padding(
                 padding: const EdgeInsets.all(20),
                 child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
                   children: <Widget>[
                     Row(
-                      children: const <Widget>[
-                        Icon(
-                          Icons.work,
-                          size: 16,
-                        ),
-                        SizedBox(
-                          width: 6,
-                        ),
-                        Text('Order', style: TextStyle(fontSize: 26)),
-                      ],
-                    ),
-                    Row(
-                      children: [
+                      children: <Widget>[
                         const Icon(
-                          Icons.attach_money,
+                          Icons.work,
                           size: 16,
                         ),
                         const SizedBox(
                           width: 6,
                         ),
+                        Text(AppLocalizations.of(context)!.order,
+                            style: TextStyle(
+                                fontSize: getProportionScreenration(16))),
+                      ],
+                    ),
+                    Row(
+                      children: [
                         Text(
-                          '${analysis.price} LE',
-                          style: const TextStyle(fontSize: 26),
+                          '${analysis.price}',
+                          style: TextStyle(
+                              fontSize: getProportionScreenration(16)),
+                        ),
+                        Text(
+                          AppLocalizations.of(context)!.le,
+                          style: TextStyle(
+                              fontSize: getProportionScreenration(16)),
                         ),
                       ],
                     ),

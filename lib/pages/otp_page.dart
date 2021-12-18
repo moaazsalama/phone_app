@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:numeric_keyboard/numeric_keyboard.dart';
+import 'package:oktoast/oktoast.dart';
+import 'package:phone_lap/helpers/size_config.dart';
 import 'package:provider/provider.dart';
 
 import '../providers/auth.dart';
@@ -25,8 +28,8 @@ class _OtpPageState extends State<OtpPage> {
   Widget otpNumberWidget(int position) {
     try {
       return Container(
-        height: 40,
-        width: 40,
+        height: getProportionateScreenHeight(40),
+        width: getProportionateScreenWidth(40),
         decoration: BoxDecoration(
             border: Border.all(color: Colors.black, width: 0),
             borderRadius: const BorderRadius.all(Radius.circular(8))),
@@ -38,8 +41,8 @@ class _OtpPageState extends State<OtpPage> {
       );
     } catch (e) {
       return Container(
-        height: 40,
-        width: 40,
+        height: getProportionateScreenHeight(40),
+        width: getProportionateScreenWidth(40),
         decoration: BoxDecoration(
             border: Border.all(color: Colors.black, width: 0),
             borderRadius: const BorderRadius.all(Radius.circular(8))),
@@ -59,10 +62,10 @@ class _OtpPageState extends State<OtpPage> {
               borderRadius: const BorderRadius.all(Radius.circular(20)),
               color: MyColors.primaryColorLight.withAlpha(20),
             ),
-            child: const Icon(
+            child: Icon(
               Icons.arrow_back_ios,
               color: MyColors.primaryColor,
-              size: 16,
+              size: getProportionScreenration(16),
             ),
           ),
           onPressed: () => Navigator.of(context).pop(),
@@ -81,11 +84,10 @@ class _OtpPageState extends State<OtpPage> {
                 children: <Widget>[
                   Container(
                       margin: const EdgeInsets.symmetric(horizontal: 20),
-                      child: const Text(
-                          'Enter 6 digits verification code sent to your number',
+                      child: Text(AppLocalizations.of(context)!.enter,
                           style: TextStyle(
                               color: Colors.black,
-                              fontSize: 23,
+                              fontSize: getProportionScreenration(23),
                               fontWeight: FontWeight.w500))),
                   Container(
                     constraints: const BoxConstraints(maxWidth: 500),
@@ -113,7 +115,22 @@ class _OtpPageState extends State<OtpPage> {
                     final bool =
                         await Provider.of<AuthProvider>(context, listen: false)
                             .signInWithPhoneNumber(text);
-                    if (bool) Navigator.pop(context);
+                    if (bool)
+                      Navigator.pop(context);
+                    else
+                      showToast(AppLocalizations.of(context)!.codeincorrect,
+                          duration: const Duration(seconds: 2),
+                          position: ToastPosition.bottom,
+                          backgroundColor:
+                              Theme.of(context).primaryColor.withOpacity(0.8),
+                          animationCurve: Curves.easeIn,
+                          animationDuration: const Duration(milliseconds: 500),
+                          radius: getProportionScreenration(10),
+                          textStyle: TextStyle(
+                              fontSize: getProportionScreenration(20.0),
+                              color: Colors.white),
+                          textAlign: TextAlign.center,
+                          dismissOtherToast: true);
                   },
                   style: ButtonStyle(
                     backgroundColor: MaterialStateProperty.resolveWith(
@@ -129,9 +146,9 @@ class _OtpPageState extends State<OtpPage> {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: <Widget>[
-                        const Text(
-                          'Confirm',
-                          style: TextStyle(color: Colors.white),
+                        Text(
+                          AppLocalizations.of(context)!.confirm,
+                          style: const TextStyle(color: Colors.white),
                         ),
                         Container(
                           padding: const EdgeInsets.all(8),
@@ -139,10 +156,10 @@ class _OtpPageState extends State<OtpPage> {
                             borderRadius: BorderRadius.all(Radius.circular(20)),
                             color: MyColors.primaryColorLight,
                           ),
-                          child: const Icon(
+                          child: Icon(
                             Icons.arrow_forward_ios,
                             color: Colors.white,
-                            size: 16,
+                            size: getProportionScreenration(16),
                           ),
                         )
                       ],

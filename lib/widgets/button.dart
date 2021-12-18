@@ -9,6 +9,7 @@ class Button extends StatelessWidget {
   final double? titleSize;
   final EdgeInsets? padding;
   final Color? color;
+
   const Button({
     Key? key,
     required this.title,
@@ -36,9 +37,10 @@ class Button extends StatelessWidget {
                 const EdgeInsets.symmetric(horizontal: 10.0, vertical: 10),
             child: Text(
               title,
-              textAlign: TextAlign.center,
+              textAlign: TextAlign.start,
               style: TextStyle(
-                  fontSize: titleSize ?? 18, fontWeight: FontWeight.bold),
+                  fontSize: titleSize ?? getProportionScreenration(18),
+                  fontWeight: FontWeight.bold),
             ),
           )),
     );

@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:oktoast/oktoast.dart';
 import 'package:phone_lap/helpers/size_config.dart';
@@ -34,8 +35,6 @@ class _PcrDataScreenState extends State<PcrDataScreen> {
       image = const AssetImage('assets/img/placeholder.png');
     else
       image = FileImage(_imageFile!);
-
-    print('dd');
   }
 
   @override
@@ -71,13 +70,13 @@ class _PcrDataScreenState extends State<PcrDataScreen> {
                       SizedBox(
                         height: getProportionateScreenHeight(20),
                       ),
-                      const Text(
-                        'please wait seconds to compelete your request',
+                      Text(
+                        AppLocalizations.of(context)!.camera,
                         textAlign: TextAlign.center,
                         softWrap: true,
                         style: TextStyle(
                             color: Colors.white,
-                            fontSize: 16,
+                            fontSize: getProportionScreenration(16),
                             fontWeight: FontWeight.bold),
                       ),
                     ],
@@ -105,11 +104,11 @@ class _PcrDataScreenState extends State<PcrDataScreen> {
                               Icons.arrow_back,
                               color: Colors.white,
                             )),
-                        const Text(
-                          'please compelete this information',
+                        Text(
+                          AppLocalizations.of(context)!.complete,
                           style: TextStyle(
                               color: Colors.white,
-                              fontSize: 20,
+                              fontSize: getProportionScreenration(20),
                               fontWeight: FontWeight.bold),
                         ),
                       ],
@@ -118,118 +117,137 @@ class _PcrDataScreenState extends State<PcrDataScreen> {
                   SizedBox(
                     height: SizeConfig.screenHeight -
                         getProportionateScreenHeight(100),
-                    child: Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          CustomTextField(
-                            controller: _lineController,
-                            labelText: 'Flight  Line',
-                            hintText: 'please write your flight line',
-                            icon: Icons.airplane_ticket_outlined,
-                          ),
-                          CustomTextField(
-                            controller: _countryController,
-                            labelText: 'Traveling country',
-                            hintText: 'please write your traveling country ',
-                            textInputType: TextInputType.text,
-                            icon: Icons.flag_outlined,
-                          ),
-                          Stack(
-                            children: [
-                              Image(
-                                image: image!,
-                                fit: BoxFit.cover,
-                                height: getProportionateScreenHeight(250),
-                              ),
-                              IconButton(
-                                alignment: Alignment.center,
-                                onPressed: () {
-                                  setState(() {
-                                    image = const AssetImage(
-                                        'assets/img/placeholder.png');
-                                    _pickedImage = null;
-                                  });
-                                },
-                                icon: const Icon(
-                                  Icons.close,
-                                  size: 30,
-                                ),
-                                color: Colors.red,
-                                highlightColor: Colors.red,
-                              )
-                            ],
-                          ),
-                          SizedBox(
-                            height: getProportionateScreenHeight(10),
-                          ),
-                          const Padding(
-                            padding: EdgeInsets.all(8.0),
-                            child: Text(
-                              'Please attach the Passport info ',
-                              style: TextStyle(
-                                  color: Colors.red,
-                                  fontSize: 20,
-                                  fontWeight: FontWeight.bold),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        CustomTextField(
+                          controller: _lineController,
+                          labelText: AppLocalizations.of(context)!.flightline,
+                          hintText: AppLocalizations.of(context)!.qflight,
+                          icon: Icons.airplane_ticket_outlined,
+                        ),
+                        CustomTextField(
+                          controller: _countryController,
+                          labelText:
+                              AppLocalizations.of(context)!.travelcountry,
+                          hintText: AppLocalizations.of(context)!.qcountry,
+                          textInputType: TextInputType.text,
+                          icon: Icons.flag_outlined,
+                        ),
+                        Stack(
+                          children: [
+                            Image(
+                              image: image!,
+                              fit: BoxFit.cover,
+                              height: getProportionateScreenHeight(250),
                             ),
+                            IconButton(
+                              alignment: Alignment.center,
+                              onPressed: () {
+                                setState(() {
+                                  image = const AssetImage(
+                                      'assets/img/placeholder.png');
+                                  _pickedImage = null;
+                                });
+                              },
+                              icon: const Icon(
+                                Icons.close,
+                                size: 30,
+                              ),
+                              color: Colors.red,
+                              highlightColor: Colors.red,
+                            )
+                          ],
+                        ),
+                        SizedBox(
+                          height: getProportionateScreenHeight(10),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Text(
+                            AppLocalizations.of(context)!.qpassport,
+                            style: TextStyle(
+                                color: Colors.red,
+                                fontSize: getProportionScreenration(20),
+                                fontWeight: FontWeight.bold),
                           ),
-                          Row(
-                            crossAxisAlignment: CrossAxisAlignment.end,
-                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                            children: [
-                              Button(
-                                  width: getProportionateScreenWidth(150),
-                                  height: 60,
-                                  title: 'from Gallery',
-                                  onPressed: () async {
-                                    try {
-                                      final result =
-                                          await imagePicker.pickImage(
-                                              source: ImageSource.gallery);
+                        ),
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.end,
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: [
+                            Button(
+                              titleSize: getProportionScreenration(10),
+                              width: getProportionateScreenWidth(150),
+                              height: getProportionateScreenHeight(60),
+                              title: AppLocalizations.of(context)!.gallery,
+                              onPressed: () async {
+                                try {
+                                  final result = await imagePicker.pickImage(
+                                      source: ImageSource.gallery);
 
-                                      if (result != null)
-                                        setState(() {
-                                          _imageFile = File(result.path);
-                                          _pickedImage = _imageFile;
-                                          image = FileImage(_imageFile!);
-                                        });
-                                    } catch (e) {
-                                      print(e.toString());
-                                    }
-                                  }),
-                              Button(
-                                  height: 60,
-                                  width: getProportionateScreenWidth(150),
-                                  title: 'from Camera',
-                                  onPressed: () async {
-                                    try {
-                                      final result =
-                                          await imagePicker.pickImage(
-                                              source: ImageSource.camera);
+                                  if (result != null)
+                                    setState(() {
+                                      _imageFile = File(result.path);
+                                      _pickedImage = _imageFile;
+                                      image = FileImage(_imageFile!);
+                                    });
+                                } catch (e) {
+                                  showToast(
+                                    AppLocalizations.of(context)!.noconnection,
+                                    duration: const Duration(seconds: 2),
+                                    position: ToastPosition.center,
+                                    backgroundColor:
+                                        Colors.black.withOpacity(0.8),
+                                    radius: getProportionScreenration(3),
+                                    textStyle: TextStyle(
+                                        fontSize:
+                                            getProportionScreenration(20.0)),
+                                  );
+                                }
+                              },
+                            ),
+                            Button(
+                                titleSize: getProportionScreenration(10),
+                                height: getProportionateScreenHeight(60),
+                                width: getProportionateScreenWidth(150),
+                                title: AppLocalizations.of(context)!.camera,
+                                onPressed: () async {
+                                  try {
+                                    final result = await imagePicker.pickImage(
+                                        source: ImageSource.camera);
 
-                                      if (result != null)
-                                        setState(() {
-                                          print(result.path);
-                                          _imageFile = File(result.path);
-                                          _pickedImage = _imageFile;
-                                          image = FileImage(_imageFile!);
-                                        });
-                                    } catch (e) {
-                                      print(e.toString());
-                                    }
-                                  }),
-                            ],
-                          ),
-                          const Expanded(child: SizedBox()),
-                          Button(
-                            title: 'Submit',
-                            onPressed: () {
-                              onSubmit(provider.analyzer!);
-                            },
-                          )
-                        ],
-                      ),
+                                    if (result != null)
+                                      setState(() {
+                                        _imageFile = File(result.path);
+                                        _pickedImage = _imageFile;
+                                        image = FileImage(_imageFile!);
+                                      });
+                                  } catch (e) {
+                                    showToast(
+                                      AppLocalizations.of(context)!
+                                          .noconnection,
+                                      duration: const Duration(seconds: 2),
+                                      position: ToastPosition.center,
+                                      backgroundColor:
+                                          Colors.black.withOpacity(0.8),
+                                      radius: getProportionScreenration(3),
+                                      textStyle: TextStyle(
+                                          fontSize:
+                                              getProportionScreenration(20.0)),
+                                    );
+                                  }
+                                }),
+                          ],
+                        ),
+                        const Expanded(child: SizedBox()),
+                        Button(
+                          title: AppLocalizations.of(context)!.submit,
+                          onPressed: () {
+                            onSubmit(provider.analyzer!);
+                          },
+                        )
+                      ],
                     ),
                   ),
                 ],
@@ -241,23 +259,24 @@ class _PcrDataScreenState extends State<PcrDataScreen> {
   Future<void> onSubmit(Analyzer user) async {
     if (_countryController.text.isEmpty || _lineController.text.isEmpty) {
       showToast(
-        "Don't Let any Empty Feilds",
+        AppLocalizations.of(context)!.validatepcr,
         duration: const Duration(seconds: 2),
         position: ToastPosition.center,
         backgroundColor: Colors.black.withOpacity(0.8),
-        radius: 3.0,
-        textStyle: const TextStyle(fontSize: 30.0),
+        radius: getProportionScreenration(3),
+        textStyle: TextStyle(fontSize: getProportionScreenration(30.0)),
       );
     } else if (_pickedImage == null) {
       showToast(
-        'please insert passport image',
+        AppLocalizations.of(context)!.qpassport,
         duration: const Duration(seconds: 2),
         position: ToastPosition.center,
         backgroundColor: Theme.of(context).primaryColor.withOpacity(0.8),
         animationCurve: Curves.easeIn,
         animationDuration: const Duration(milliseconds: 500),
         radius: 3.0,
-        textStyle: const TextStyle(fontSize: 20.0, color: Colors.black),
+        textStyle: TextStyle(
+            fontSize: getProportionScreenration(20.0), color: Colors.black),
       );
     } else {
       try {
@@ -269,11 +288,9 @@ class _PcrDataScreenState extends State<PcrDataScreen> {
             .child('${user.analyzerId}/${_pickedImage!.path.split('/').last}')
             .putFile(_pickedImage!);
         final s = await taskSnapshot.ref.getDownloadURL();
+
         final orderItem = OrderItem(
-            analysis: Analysis(
-                name: 'Pcr',
-                analysisType: 'PCr',
-                price: '100'),
+            analysis: Analysis(name: 'pcr', analysisType: 'PCr', price: '100'),
             user: user,
             id: 'id',
             dateTime: DateTime.now(),
@@ -287,7 +304,14 @@ class _PcrDataScreenState extends State<PcrDataScreen> {
         await Provider.of<Orders>(context, listen: false)
             .sendOrder(orderItem, 'pcrTravel');
       } catch (e) {
-        print(e.toString());
+        showToast(
+          AppLocalizations.of(context)!.noconnection,
+          duration: const Duration(seconds: 2),
+          position: ToastPosition.center,
+          backgroundColor: Colors.black.withOpacity(0.8),
+          radius: getProportionScreenration(3),
+          textStyle: TextStyle(fontSize: getProportionScreenration(20.0)),
+        );
       }
 
       setState(() {
@@ -296,12 +320,12 @@ class _PcrDataScreenState extends State<PcrDataScreen> {
 
       Navigator.pop(context);
       showToast(
-        'Request Sent Successfuly',
+        AppLocalizations.of(context)!.requestsuccessful,
         duration: const Duration(seconds: 2),
         position: ToastPosition.center,
         backgroundColor: Colors.black.withOpacity(0.8),
-        radius: 3.0,
-        textStyle: const TextStyle(fontSize: 20.0),
+        radius: getProportionScreenration(3),
+        textStyle: TextStyle(fontSize: getProportionScreenration(20.0)),
       );
     }
   }
