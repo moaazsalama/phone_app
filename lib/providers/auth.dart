@@ -13,43 +13,47 @@ class AuthProvider with ChangeNotifier {
   String? uid;
   bool isNew = false;
   List<String> admins = [];
-
-  Future googleLogin() async {
+  UserCredential? userCredential;
+  Future<bool> googleLogin() async {
     try {
       final googleUser = await googleSignin.signIn();
-      if (googleUser == null) return;
+      if (googleUser == null) return false;
       _googleSignInAccount = googleUser;
       final googleAuth = await _googleSignInAccount!.authentication;
       final credential = GoogleAuthProvider.credential(
           accessToken: googleAuth.accessToken, idToken: googleAuth.idToken);
-      final userCredential = await auth.signInWithCredential(credential);
-      isNew = userCredential.additionalUserInfo!.isNewUser;
-      uid = userCredential.user!.uid;
+      userCredential = await auth.signInWithCredential(credential);
+      isNew = userCredential!.additionalUserInfo!.isNewUser;
+      uid = userCredential!.user!.uid;
       notifyListeners();
+      return true;
+
       // ignore: empty_catches
     } on Exception {}
+    return false;
   }
 
   Future<bool> sendOTP(String phoneNumber) async {
     try {
       await FirebaseAuth.instance.verifyPhoneNumber(
           phoneNumber: phoneNumber,
-          verificationCompleted: (PhoneAuthCredential credential) {
-            auth.signInWithCredential(credential);
-          },
+          verificationCompleted: (PhoneAuthCredential credential) {},
           verificationFailed: (e) {
             if (e.code == 'invalid-phone-number') showToast('msg');
           },
           codeSent: _codeSent,
-          codeAutoRetrievalTimeout: (String verificationId) {},
-          timeout: const Duration(seconds: 120));
+          timeout: const Duration(seconds: 120),
+          codeAutoRetrievalTimeout: (String verificationId) {});
+      print('sended');
       return true;
     } catch (e) {
+      print('verify phone ${e.toString()}');
       return false;
     }
   }
 
   void _codeSent(String verificationId, int? resendToken) {
+    print(verificationId);
     this.verificationId = verificationId;
   }
 
@@ -57,20 +61,28 @@ class AuthProvider with ChangeNotifier {
     try {
       final credential = PhoneAuthProvider.credential(
           verificationId: verificationId!, smsCode: otp);
-      final userCredential = await auth.signInWithCredential(credential);
-      isNew = userCredential.additionalUserInfo!.isNewUser;
-      uid = userCredential.user!.uid;
-
+      print(credential.toString());
+      userCredential = await auth.signInWithCredential(credential);
+      isNew = userCredential!.additionalUserInfo!.isNewUser;
+      uid = userCredential!.user!.uid;
       notifyListeners();
       return true;
-      // ignore: empty_catches
-    } catch (e) {}
+    } catch (e) {
+      print('${e.toString()} signInWithPhoneNumber');
+    }
     notifyListeners();
     return false;
   }
 
   void getAdmins() {
     admins = UserSheetApi.admins;
+  }
+
+  void clear() {
+    this.isNew = false;
+    this.uid = null;
+    this.verificationId = null;
+    notifyListeners();
   }
 
   Future<bool> isAdmin(String? email) async {
@@ -80,6 +92,12 @@ class AuthProvider with ChangeNotifier {
   }
 
   Future<void> signOut() async {
-    return await auth.signOut();
+    try {
+      await auth.signOut();
+    } on Exception catch (e) {
+      print('${e.toString()} signOut');
+    }
+
+    clear();
   }
 }

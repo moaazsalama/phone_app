@@ -7,11 +7,16 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:oktoast/oktoast.dart';
 import 'package:phone_lap/helpers/size_config.dart';
+import 'package:phone_lap/pages/home_page.dart';
+import 'package:phone_lap/pages/info_page.dart';
 import 'package:phone_lap/pages/otp_page.dart';
+import 'package:phone_lap/providers/analyzer.dart';
 import 'package:phone_lap/providers/auth.dart';
 import 'package:phone_lap/providers/languagesprovider.dart';
 import 'package:phone_lap/theme.dart';
 import 'package:provider/provider.dart';
+
+import 'admin_page.dart';
 
 class LoginPage extends StatefulWidget {
   static String routeName = 'Login-Page';
@@ -299,8 +304,35 @@ class _LoginPageState extends State<LoginPage> {
                     color: Colors.red,
                   ),
                   onPressed: () async {
-                    await Provider.of<AuthProvider>(context, listen: false)
-                        .googleLogin();
+                    final boolean =
+                        await Provider.of<AuthProvider>(context, listen: false)
+                            .googleLogin();
+                    if (boolean) {
+                      final bool isNew =
+                          Provider.of<AuthProvider>(context, listen: false)
+                              .isNew;
+                      if (isNew) {
+                        Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => InfoScreen(),
+                            ));
+                      } else {
+                        final analyzer = Provider.of<AnalyzerProvider>(context,
+                                listen: false)
+                            .analyzer;
+                        final value = await Provider.of<AuthProvider>(context,
+                                listen: false)
+                            .isAdmin(analyzer!.email);
+                        print(value);
+                        if (value)
+                          Navigator.of(context)
+                              .pushReplacementNamed(AdminPage.routeName);
+                        else
+                          Navigator.of(context)
+                              .pushReplacementNamed(HomePage.routeName);
+                      }
+                    }
                   },
                 ),
               ),

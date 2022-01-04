@@ -1,12 +1,7 @@
-// ignore_for_file: unused_import
-
-import 'dart:ui';
-
 import 'package:carousel_slider/carousel_slider.dart';
-import 'package:firebase_auth/firebase_auth.dart' show FirebaseAuth;
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:oktoast/oktoast.dart';
 import 'package:phone_lap/helpers/size_config.dart';
 import 'package:phone_lap/models/analysis.dart';
@@ -16,7 +11,6 @@ import 'package:phone_lap/pages/blood_page.dart';
 import 'package:phone_lap/pages/collection_page.dart';
 import 'package:phone_lap/pages/confirm_page.dart';
 import 'package:phone_lap/pages/orders_page.dart';
-import 'package:phone_lap/pages/pcr_data_page.dart';
 import 'package:phone_lap/pages/prescription_data.dart';
 import 'package:phone_lap/pages/search_page.dart';
 import 'package:phone_lap/providers/analyzer.dart';
@@ -26,8 +20,6 @@ import 'package:phone_lap/providers/order.dart';
 import 'package:phone_lap/widgets/button.dart';
 import 'package:phone_lap/widgets/main_drawer.dart';
 import 'package:provider/provider.dart';
-
-import 'blood_analysis_page.dart';
 
 class HomePage extends StatefulWidget {
   static const String routeName = 'home-Page';
@@ -42,344 +34,339 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     SizeConfig().init(context);
-    return Scaffold(
-      key: scaffoldKey,
-      body: FutureBuilder<Analyzer?>(
-        future:
-            Provider.of<AnalyzerProvider>(context, listen: false).getAnalyzer(),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting)
-            // ignore: prefer_const_constructors
-            return Center(
-              child: const CircularProgressIndicator(),
-            );
-          else if (snapshot.hasData) {
-            final user = snapshot.data!;
-            return Stack(
-              children: [
-                Opacity(
-                  opacity: 0.2,
-                  child: Container(
-                    width: double.infinity,
-                    height: double.infinity,
-                    decoration: const BoxDecoration(
-                        image: DecorationImage(
-                            image: AssetImage('assets/img/background.PNG'),
-                            fit: BoxFit.fitHeight)),
+    return SafeArea(
+      child: Scaffold(
+        key: scaffoldKey,
+        body: FutureBuilder<Analyzer?>(
+            future: Provider.of<AnalyzerProvider>(context, listen: false)
+                .getAnalyzer(FirebaseAuth.instance.currentUser!.uid),
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting)
+                return const Center(
+                  child: CircularProgressIndicator(),
+                );
+
+              final user = Provider.of<AnalyzerProvider>(context).analyzer;
+              print(user.toString());
+              return Stack(
+                children: [
+                  Opacity(
+                    opacity: 0.2,
+                    child: Container(
+                      width: double.infinity,
+                      height: double.infinity,
+                      decoration: const BoxDecoration(
+                          image: DecorationImage(
+                              image: AssetImage('assets/img/background.PNG'),
+                              fit: BoxFit.fitHeight)),
+                    ),
                   ),
-                ),
-                Column(
-                  crossAxisAlignment:
-                      Provider.of<LanguageChangeProvider>(context)
-                                  .current!
-                                  .languageCode ==
-                              'ar'
-                          ? CrossAxisAlignment.end
-                          : CrossAxisAlignment.start,
-                  children: [
-                    Container(
-                      height: getProportionateScreenHeight(160),
-                      decoration: BoxDecoration(
-                        color: Theme.of(context).primaryColor,
-                        borderRadius: const BorderRadius.only(
-                          bottomLeft: Radius.circular(40),
-                          bottomRight: Radius.circular(40),
-                        ),
-                      ),
-                      child: Stack(
-                        children: [
-                          Positioned(
-                            child: IconButton(
-                                onPressed: () {
-                                  scaffoldKey.currentState!.openDrawer();
-                                },
-                                icon: Icon(
-                                  Icons.menu_outlined,
-                                  color: Colors.white,
-                                  size: getProportionScreenration(30),
-                                )),
-                            left: Provider.of<LanguageChangeProvider>(context)
-                                        .current!
-                                        .languageCode ==
-                                    'en'
-                                ? getProportionateScreenWidth(5)
-                                : null,
-                            top: getProportionateScreenHeight(15),
-                            right: Provider.of<LanguageChangeProvider>(context)
-                                        .current!
-                                        .languageCode ==
-                                    'ar'
-                                ? getProportionateScreenWidth(5)
-                                : null,
+                  SingleChildScrollView(
+                    child: Column(
+                      crossAxisAlignment:
+                          Provider.of<LanguageChangeProvider>(context)
+                                      .current!
+                                      .languageCode ==
+                                  'ar'
+                              ? CrossAxisAlignment.end
+                              : CrossAxisAlignment.start,
+                      children: [
+                        Container(
+                          height: getProportionateScreenHeight(160),
+                          decoration: BoxDecoration(
+                            color: Theme.of(context).primaryColor,
+                            borderRadius: const BorderRadius.only(
+                              bottomLeft: Radius.circular(40),
+                              bottomRight: Radius.circular(40),
+                            ),
                           ),
-                          Positioned(
-                            child: IconButton(
-                                onPressed: () {
-                                  Navigator.pushNamed(
-                                      context, SearchPage.routeName);
-                                },
-                                icon: Icon(
-                                  Icons.search_outlined,
-                                  color: Colors.white,
-                                  size: getProportionScreenration(30),
-                                )),
-                            right: Provider.of<LanguageChangeProvider>(context)
-                                        .current!
-                                        .languageCode ==
-                                    'en'
-                                ? getProportionateScreenWidth(5)
-                                : null,
-                            top: getProportionateScreenHeight(15),
-                            left: Provider.of<LanguageChangeProvider>(context)
-                                        .current!
-                                        .languageCode ==
-                                    'ar'
-                                ? getProportionateScreenWidth(5)
-                                : null,
-                          ),
-                          Align(
-                              alignment: Alignment.center,
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Container(
-                                    decoration: BoxDecoration(
-                                        shape: BoxShape.circle,
-                                        border:
-                                            Border.all(color: Colors.white)),
-                                    padding: const EdgeInsets.all(2),
-                                    clipBehavior: Clip.antiAliasWithSaveLayer,
-                                    child: CircleAvatar(
-                                      child: Image.asset(
-                                          user.gender
-                                              ? 'assets/icon/business-man.png'
-                                              : 'assets/icon/woman.png',
-                                          fit: BoxFit.cover),
-                                      radius: getProportionScreenration(30),
-                                    ),
-                                  ),
-                                  SizedBox(
-                                    width: getProportionateScreenWidth(20),
-                                  ),
-                                  Column(
+                          child: Stack(
+                            children: [
+                              Positioned(
+                                child: IconButton(
+                                    onPressed: () {
+                                      scaffoldKey.currentState!.openDrawer();
+                                    },
+                                    icon: Icon(
+                                      Icons.menu_outlined,
+                                      color: Colors.white,
+                                      size: getProportionScreenration(30),
+                                    )),
+                                left: Provider.of<LanguageChangeProvider>(context)
+                                            .current!
+                                            .languageCode ==
+                                        'en'
+                                    ? getProportionateScreenWidth(5)
+                                    : null,
+                                top: getProportionateScreenHeight(15),
+                                right: Provider.of<LanguageChangeProvider>(context)
+                                            .current!
+                                            .languageCode ==
+                                        'ar'
+                                    ? getProportionateScreenWidth(5)
+                                    : null,
+                              ),
+                              Positioned(
+                                child: IconButton(
+                                    onPressed: () {
+                                      Navigator.pushNamed(
+                                          context, SearchPage.routeName);
+                                    },
+                                    icon: Icon(
+                                      Icons.search_outlined,
+                                      color: Colors.white,
+                                      size: getProportionScreenration(30),
+                                    )),
+                                right: Provider.of<LanguageChangeProvider>(context)
+                                            .current!
+                                            .languageCode ==
+                                        'en'
+                                    ? getProportionateScreenWidth(5)
+                                    : null,
+                                top: getProportionateScreenHeight(15),
+                                left: Provider.of<LanguageChangeProvider>(context)
+                                            .current!
+                                            .languageCode ==
+                                        'ar'
+                                    ? getProportionateScreenWidth(5)
+                                    : null,
+                              ),
+                              Align(
+                                  alignment: Alignment.center,
+                                  child: Row(
                                     mainAxisAlignment: MainAxisAlignment.center,
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
                                     children: [
-                                      Text(
-                                        '${user.name}',
-                                        style: TextStyle(
-                                            color: Colors.white,
-                                            fontSize:
-                                                getProportionScreenration(24),
-                                            fontWeight: FontWeight.bold),
-                                      ),
-                                      SizedBox(
-                                        height:
-                                            getProportionateScreenHeight(10),
-                                      ),
-                                      Text(
-                                        '${user.phone}',
-                                        style: TextStyle(
-                                          color: Colors.white,
-                                          fontSize:
-                                              getProportionScreenration(16),
+                                      Container(
+                                        decoration: BoxDecoration(
+                                            shape: BoxShape.circle,
+                                            border:
+                                                Border.all(color: Colors.white)),
+                                        padding: const EdgeInsets.all(2),
+                                        clipBehavior: Clip.antiAliasWithSaveLayer,
+                                        child: CircleAvatar(
+                                          child: Image.asset(
+                                              user!.gender
+                                                  ? 'assets/icon/business-man.png'
+                                                  : 'assets/icon/woman.png',
+                                              fit: BoxFit.cover),
+                                          radius: getProportionScreenration(30),
                                         ),
                                       ),
-                                    ],
-                                  )
-                                ],
-                              )),
-                        ],
-                      ),
-                    ),
-                    Container(
-                      //     height: getProportionateScreenHeight(100),
-                      margin: const EdgeInsets.only(top: 5, left: 5),
-                      child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: getChild()),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.all(5.0),
-                      child: Column(
-                        children: showAnalysis(context),
-                      ),
-                    ),
-                    Row(
-                      children: [
-                        Item(
-                          onPressed: () async {
-                            try {
-                              final analysis = Analysis(
-                                  name: 'Package Corona',
-                                  price: '70LE',
-                                  analysisType: 'PCR');
-                              final user = Provider.of<AnalyzerProvider>(
-                                      context,
-                                      listen: false)
-                                  .analyzer;
-                              final orderItem = OrderItem(
-                                  analysis: analysis,
-                                  user: user!,
-                                  id: 'id',
-                                  dateTime: DateTime.now(),
-                                  isDeliverd: 'no');
-
-                              await Provider.of<Orders>(context, listen: false)
-                                  .sendOrder(orderItem, 'pcrNormal');
-
-                              showToast(
-                                AppLocalizations.of(context)!.requestsuccessful,
-                                duration: const Duration(seconds: 2),
-                                position: ToastPosition.center,
-                                backgroundColor: Colors.black.withOpacity(0.8),
-                                radius: 3.0,
-                                textStyle: TextStyle(
-                                    fontSize: getProportionScreenration(20.0)),
-                              );
-                            } on Exception {
-                              showToast(
-                                AppLocalizations.of(context)!.noconnection,
-                                duration: const Duration(seconds: 2),
-                                position: ToastPosition.center,
-                                backgroundColor: Colors.black.withOpacity(0.8),
-                                radius: getProportionScreenration(3),
-                                textStyle: TextStyle(
-                                    fontSize: getProportionScreenration(20.0)),
-                              );
-                            }
-                          },
-                          text: 'Package Corona',
-                        ),
-                        Item(
-                          onPressed: () {},
-                          text: 'Lipid Profile',
-                        ),
-                      ],
-                    ),
-                    if (SizeConfig.screenHeight > 600)
-                      Expanded(
-                          child: FutureBuilder<Map<String, dynamic>>(
-                              future: UserSheetApi.slider(),
-                              builder: (context, snapshot) {
-                                if (snapshot.connectionState ==
-                                    ConnectionState.waiting)
-                                  return const Center(
-                                      child: CircularProgressIndicator());
-                                else if (snapshot.hasData) {
-                                  return CarouselSlider.builder(
-                                    options: CarouselOptions(
-                                      height: 400.0,
-                                      aspectRatio: 16 / 9,
-                                      viewportFraction: 0.8,
-                                      initialPage: 0,
-                                      enableInfiniteScroll: true,
-                                      reverse: false,
-                                      autoPlay: true,
-                                      autoPlayInterval:
-                                          const Duration(seconds: 3),
-                                      autoPlayAnimationDuration:
-                                          const Duration(milliseconds: 800),
-                                      autoPlayCurve: Curves.fastOutSlowIn,
-                                      enlargeCenterPage: true,
-                                      onPageChanged: (index, reason) {},
-                                      scrollDirection: Axis.horizontal,
-                                    ),
-                                    itemBuilder: (context, index, realIndex) {
-                                      final List<AnalysisType> types =
-                                          snapshot.data!['analysisType'];
-                                      final List<Analysis> allAnalysis =
-                                          snapshot.data!['analysis'];
-                                      final current =
-                                          allAnalysis.where((element) {
-                                        return element.analysisType ==
-                                            types[index].key;
-                                      }).toList();
-                                      return Container(
-                                          width:
-                                              MediaQuery.of(context).size.width,
-                                          margin: const EdgeInsets.symmetric(
-                                              horizontal: 5.0, vertical: 5),
-                                          child: Center(
-                                            child: Padding(
-                                              padding:
-                                                  const EdgeInsets.all(8.0),
-                                              child: Column(
-                                                children: [
-                                                  Text(
-                                                    '${types[index].anaysisType}',
-                                                    style: TextStyle(
-                                                        fontSize:
-                                                            getProportionScreenration(
-                                                                20.0),
-                                                        color: Colors.black,
-                                                        fontWeight:
-                                                            FontWeight.bold),
-                                                  ),
-                                                  Expanded(
-                                                      child: InkWell(
-                                                    onTap: () => Navigator.of(
-                                                            context)
-                                                        .push(MaterialPageRoute(
-                                                      builder: (context) =>
-                                                          CollectionPage(
-                                                              analysisList:
-                                                                  current,
-                                                              analysisType:
-                                                                  types[index]),
-                                                    )),
-                                                    child: Container(
-                                                      padding:
-                                                          const EdgeInsets.all(
-                                                              5),
-                                                      color: Theme.of(context)
-                                                          .primaryColor,
-                                                      child: ListView.builder(
-                                                        padding:
-                                                            EdgeInsets.zero,
-                                                        itemBuilder:
-                                                            (context, index) {
-                                                          return AnalysisItemHome(
-                                                            current[index],
-                                                          );
-                                                        },
-                                                        itemCount:
-                                                            current.length,
-                                                      ),
-                                                    ),
-                                                  ))
-                                                ],
-                                              ),
+                                      SizedBox(
+                                        width: getProportionateScreenWidth(20),
+                                      ),
+                                      Column(
+                                        mainAxisAlignment: MainAxisAlignment.center,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            '${user.name}',
+                                            style: TextStyle(
+                                                color: Colors.white,
+                                                fontSize:
+                                                    getProportionScreenration(24),
+                                                fontWeight: FontWeight.bold),
+                                          ),
+                                          SizedBox(
+                                            height:
+                                                getProportionateScreenHeight(10),
+                                          ),
+                                          Text(
+                                            '${user.phone}',
+                                            style: TextStyle(
+                                              color: Colors.white,
+                                              fontSize:
+                                                  getProportionScreenration(16),
                                             ),
-                                          ));
-                                    },
-                                    itemCount:
-                                        snapshot.data!['analysisType'].length,
+                                          ),
+                                        ],
+                                      )
+                                    ],
+                                  )),
+                            ],
+                          ),
+                        ),
+                        Container(
+                          //     height: getProportionateScreenHeight(100),
+                          margin: const EdgeInsets.only(top: 5, left: 5),
+                          child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: getChild()),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.all(5.0),
+                          child: Column(
+                            children: showAnalysis(context),
+                          ),
+                        ),
+                        Row(
+                          children: [
+                            Item(
+                              onPressed: () async {
+                                try {
+                                  final analysis = Analysis(
+                                      name: 'Package Corona',
+                                      price: '70LE',
+                                      analysisType: 'PCR');
+                                  final user = Provider.of<AnalyzerProvider>(
+                                          context,
+                                          listen: false)
+                                      .analyzer;
+                                  final orderItem = OrderItem(
+                                      analysis: analysis,
+                                      user: user!,
+                                      id: 'id',
+                                      dateTime: DateTime.now(),
+                                      isDeliverd: 'no');
+
+                                  await Provider.of<Orders>(context, listen: false)
+                                      .sendOrder(orderItem, 'pcrNormal');
+
+                                  showToast(
+                                    AppLocalizations.of(context)!.requestsuccessful,
+                                    duration: const Duration(seconds: 2),
+                                    position: ToastPosition.center,
+                                    backgroundColor: Colors.black.withOpacity(0.8),
+                                    radius: 3.0,
+                                    textStyle: TextStyle(
+                                        fontSize: getProportionScreenration(20.0)),
                                   );
-                                } else
-                                  return Center(
-                                    child: Text(AppLocalizations.of(context)!
-                                        .noconnection),
+                                } on Exception {
+                                  showToast(
+                                    AppLocalizations.of(context)!.noconnection,
+                                    duration: const Duration(seconds: 2),
+                                    position: ToastPosition.center,
+                                    backgroundColor: Colors.black.withOpacity(0.8),
+                                    radius: getProportionScreenration(3),
+                                    textStyle: TextStyle(
+                                        fontSize: getProportionScreenration(20.0)),
                                   );
-                              }))
-                  ],
-                ),
-              ],
-            );
-          } else {
-            return Center(
-              child: TextButton(
-                child: Text(AppLocalizations.of(context)!.noconnection),
-                onPressed: () {
-                  FirebaseAuth.instance.signOut();
-                },
+                                }
+                              },
+                              text: 'Package Corona',
+                            ),
+                            Item(
+                              onPressed: () {},
+                              text: 'Lipid Profile',
+                            ),
+                          ],
+                        ),
+SizedBox(
+  height: getProportionateScreenHeight(200),
+  child:         FutureBuilder<Map<String, dynamic>>(
+        future: UserSheetApi.slider(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState ==
+              ConnectionState.waiting)
+            return const Center(
+                child: CircularProgressIndicator());
+          else if (snapshot.hasData) {
+            return CarouselSlider.builder(
+              options: CarouselOptions(
+                height: 400.0,
+                aspectRatio: 16 / 9,
+                viewportFraction: 0.8,
+                initialPage: 0,
+                enableInfiniteScroll: true,
+                reverse: false,
+                autoPlay: true,
+                autoPlayInterval:
+                const Duration(seconds: 3),
+                autoPlayAnimationDuration:
+                const Duration(milliseconds: 800),
+                autoPlayCurve: Curves.fastOutSlowIn,
+                enlargeCenterPage: true,
+                onPageChanged: (index, reason) {},
+                scrollDirection: Axis.horizontal,
               ),
+              itemBuilder: (context, index, realIndex) {
+                final List<AnalysisType> types =
+                snapshot.data!['analysisType'];
+                final List<Analysis> allAnalysis =
+                snapshot.data!['analysis'];
+                final current =
+                allAnalysis.where((element) {
+                  return element.analysisType ==
+                      types[index].key;
+                }).toList();
+                return Container(
+                    width:
+                    MediaQuery.of(context).size.width,
+                    margin: const EdgeInsets.symmetric(
+                        horizontal: 5.0, vertical: 5),
+                    child: Center(
+                      child: Padding(
+                        padding:
+                        const EdgeInsets.all(8.0),
+                        child: Column(
+                          children: [
+                            Text(
+                              '${types[index].anaysisType}',
+                              style: TextStyle(
+                                  fontSize:
+                                  getProportionScreenration(
+                                      20.0),
+                                  color: Colors.black,
+                                  fontWeight:
+                                  FontWeight.bold),
+                            ),
+                            Expanded(
+                                child: InkWell(
+                                  onTap: () => Navigator.of(
+                                      context)
+                                      .push(MaterialPageRoute(
+                                    builder: (context) =>
+                                        CollectionPage(
+                                            analysisList:
+                                            current,
+                                            analysisType:
+                                            types[index]),
+                                  )),
+                                  child: Container(
+                                    padding:
+                                    const EdgeInsets.all(
+                                        5),
+                                    color: Theme.of(context)
+                                        .primaryColor,
+                                    child: ListView.builder(
+                                      padding:
+                                      EdgeInsets.zero,
+                                      itemBuilder:
+                                          (context, index) {
+                                        return AnalysisItemHome(
+                                          current[index],
+                                        );
+                                      },
+                                      itemCount:
+                                      current.length,
+                                    ),
+                                  ),
+                                ))
+                          ],
+                        ),
+                      ),
+                    ));
+              },
+              itemCount:
+              snapshot.data!['analysisType'].length,
             );
-          }
-        },
+          } else
+            return Center(
+              child: Text(AppLocalizations.of(context)!
+                  .noconnection),
+            );
+        })
+  
+)
+                       ],
+                    ),
+                  ),
+                ],
+              );
+            }),
+        drawer: MainDrawer(),
       ),
-      drawer: MainDrawer(),
     );
   }
 
@@ -459,8 +446,8 @@ class _HomePageState extends State<HomePage> {
           child: Text(
             AppLocalizations.of(context)!.availableanalysis,
             textAlign: TextAlign.justify,
-            style: const TextStyle(
-                color: Colors.black, fontSize: 24, fontWeight: FontWeight.bold),
+            style:  TextStyle(
+                color: Colors.black, fontSize: getProportionScreenration(24), fontWeight: FontWeight.bold),
           ),
         ),
         Expanded(
@@ -471,7 +458,7 @@ class _HomePageState extends State<HomePage> {
             child: Button(
               titleSize: getProportionScreenration(20),
               title: '${AppLocalizations.of(context)!.myanalysis}',
-              //  titleSize: 10,
+
               onPressed: () async {
                 Navigator.pushNamed(context, OrdersPage.routeName);
               },
@@ -510,6 +497,7 @@ class _HomePageState extends State<HomePage> {
                 horizontal: getProportionateScreenWidth(20),
                 vertical: getProportionateScreenHeight(10)),
             child: Button(
+              titleSize: getProportionScreenration(20),
               title: '${AppLocalizations.of(context)!.myanalysis}',
               //  titleSize: 10,
               onPressed: () async {

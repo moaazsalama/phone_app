@@ -20,6 +20,8 @@ import 'package:phone_lap/widgets/main_drawer.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import 'login_page.dart';
+
 class AdminPage extends StatefulWidget {
   static String routeName = 'admin-Page';
   const AdminPage({Key? key}) : super(key: key);
@@ -69,9 +71,16 @@ class _AdminPageState extends State<AdminPage> {
                   child: Row(
                     children: [
                       IconButton(
-                          onPressed: () =>
-                              Provider.of<AuthProvider>(context, listen: false)
-                                  .signOut(),
+                          onPressed: () async {
+                            await Navigator.pushReplacementNamed(
+                                context, LoginPage.routeName);
+                            Provider.of<AnalyzerProvider>(context,
+                                    listen: false)
+                                .clear();
+                            await Provider.of<AuthProvider>(context,
+                                    listen: false)
+                                .signOut();
+                          },
                           icon: const Icon(
                             Icons.arrow_back,
                             color: Colors.white,

@@ -9,9 +9,9 @@ class LanguageChangeProvider with ChangeNotifier {
 
   Future<void> getLanguage() async {
     final sharedPreferences = await SharedPreferences.getInstance();
-    final string = sharedPreferences.getString('languageKey');
+    final string = sharedPreferences.getString('languageKey')??'en';
 
-    if (string != null) currentLocale = Locale(string);
+     currentLocale = Locale(string);
   }
 
   Future<void> changeLocale(String _locale) async {

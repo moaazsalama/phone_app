@@ -14,25 +14,33 @@ class AnalyzerProvider with ChangeNotifier {
           .collection('users')
           .doc(_firebaseAuth.currentUser!.uid)
           .set(analyzer.toMap());
+      this.analyzer=analyzer;
+      notifyListeners();
       return true;
-      // ignore: empty_catches
     } catch (e) {}
+    notifyListeners();
     return false;
   }
 
-  void getData(String uid) {
+  void getData(String? uid) {
+    print(uid);
     this.userId = uid;
-
     notifyListeners();
   }
 
-  Future<Analyzer?>? getAnalyzer() async {
+  Future<Analyzer?>? getAnalyzer([String? id]) async {
+    print('$userId   idddd');
     final DocumentSnapshot<Map<String, dynamic>> doc =
-        await _firestore.collection('users').doc(userId).get();
+        await _firestore.collection('users').doc(id ?? userId).get();
 
     analyzer = Analyzer.fromMap(doc.data()!);
 
     notifyListeners();
     return analyzer;
+  }
+  void clear(){
+    this.userId=null;
+    this.analyzer=null;
+    notifyListeners();
   }
 }

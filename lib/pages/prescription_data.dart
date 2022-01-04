@@ -153,7 +153,7 @@ class _PrescriptionDataState extends State<PrescriptionData> {
                           Padding(
                             padding: const EdgeInsets.all(8.0),
                             child: Text(
-                              AppLocalizations.of(context)!.qpassport,
+                              AppLocalizations.of(context)!.qimage,
                               style: TextStyle(
                                   color: Colors.red,
                                   fontSize: getProportionScreenration(20),

@@ -5,40 +5,46 @@ import 'package:intl/intl.dart';
 import 'package:oktoast/oktoast.dart';
 import 'package:phone_lap/helpers/size_config.dart';
 import 'package:phone_lap/models/analyzer.dart';
+import 'package:phone_lap/pages/admin_page.dart';
 import 'package:phone_lap/pages/home_page.dart';
 import 'package:phone_lap/providers/analyzer.dart';
+import 'package:phone_lap/providers/auth.dart';
 import 'package:phone_lap/theme.dart';
 import 'package:phone_lap/widgets/button.dart';
 import 'package:phone_lap/widgets/custom_textfeilds.dart' show CustomTextField;
 import 'package:provider/provider.dart';
 
 class InfoScreen extends StatefulWidget {
-  final User user;
-
-  const InfoScreen({required this.user});
+  final User? user = FirebaseAuth.instance.currentUser;
 
   @override
   State<InfoScreen> createState() => _InfoScreenState();
 }
 
 class _InfoScreenState extends State<InfoScreen> {
-  TextEditingController _nameController = TextEditingController();
+  TextEditingController _firstNameController = TextEditingController();
+  TextEditingController _lastNameController = TextEditingController();
   TextEditingController _phoneController = TextEditingController();
   final TextEditingController _addressController = TextEditingController();
   TextEditingController _emailController = TextEditingController();
   TextEditingController _dateController =
       TextEditingController(text: DateFormat.yMd().format(DateTime(2000)));
   GlobalKey<FormState> key = GlobalKey<FormState>();
-  DateTime? selectedDate;
+  DateTime? selectedDate = DateTime(2000, 1, 1);
   bool isMale = true;
   String? city;
   @override
   void initState() {
     super.initState();
 
-    _phoneController = TextEditingController(text: widget.user.phoneNumber);
-    _nameController = TextEditingController(text: widget.user.displayName);
-    _emailController = TextEditingController(text: widget.user.email);
+    _phoneController = TextEditingController(text: widget.user!.phoneNumber);
+    if (widget.user!.displayName != null) {
+      final split = widget.user!.displayName!.split(' ');
+      _firstNameController = TextEditingController(text: split.first);
+      _lastNameController = TextEditingController(text: split.last);
+    }
+
+    _emailController = TextEditingController(text: widget.user!.email);
   }
 
   @override
@@ -112,10 +118,17 @@ class _InfoScreenState extends State<InfoScreen> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     CustomTextField(
-                      length: 20,
-                      controller: _nameController,
-                      labelText: AppLocalizations.of(context)!.name,
-                      hintText: AppLocalizations.of(context)!.hintname,
+                      length: 10,
+                      controller: _firstNameController,
+                      labelText: AppLocalizations.of(context)!.firstname,
+                      hintText: AppLocalizations.of(context)!.hintfirstname,
+                      icon: Icons.account_circle_outlined,
+                    ),
+                    CustomTextField(
+                      length: 10,
+                      controller: _lastNameController,
+                      labelText: AppLocalizations.of(context)!.lastname,
+                      hintText: AppLocalizations.of(context)!.hintlastname,
                       icon: Icons.account_circle_outlined,
                     ),
                     CustomTextField(
@@ -309,7 +322,9 @@ class _InfoScreenState extends State<InfoScreen> {
                     ),
                     Button(
                       title: AppLocalizations.of(context)!.submittwo,
-                      onPressed: onSave,
+                      onPressed: () async {
+                        await onSave(context);
+                      },
                     )
                   ],
                 ),
@@ -321,8 +336,9 @@ class _InfoScreenState extends State<InfoScreen> {
     );
   }
 
-  void onSave() {
-    if (_nameController.text.isEmpty ||
+  Future<void> onSave(context) async {
+    if (_firstNameController.text.isEmpty ||
+        _lastNameController.text.isEmpty ||
         _addressController.text.isEmpty ||
         _phoneController.text.isEmpty) {
       showToast(
@@ -344,18 +360,21 @@ class _InfoScreenState extends State<InfoScreen> {
         textStyle: TextStyle(fontSize: getProportionScreenration(20.0)),
       );
     } else {
-      Provider.of<AnalyzerProvider>(context, listen: false)
-          .addAnlayzer(Analyzer(
-              analyzerId: widget.user.uid,
-              name: _nameController.text,
+      await Provider.of<AnalyzerProvider>(context, listen: false).addAnlayzer(
+          Analyzer(
+              analyzerId: widget.user!.uid,
+              name: _firstNameController.text + ' ' + _lastNameController.text,
               phone: _phoneController.text,
               address: city! + '-' + _addressController.text,
               date: selectedDate.toString(),
               email: _emailController.text,
-              gender: isMale))
-          .then((value) {
-        return Navigator.of(context).pushReplacementNamed(HomePage.routeName);
-      });
+              gender: isMale));
+      final value = await Provider.of<AuthProvider>(context, listen: false)
+          .isAdmin(_emailController.text);
+      if (value)
+        Navigator.of(context).pushReplacementNamed(AdminPage.routeName);
+      else
+        Navigator.of(context).pushReplacementNamed(HomePage.routeName);
     }
   }
 
@@ -363,7 +382,7 @@ class _InfoScreenState extends State<InfoScreen> {
     try {
       final DateTime? dateTime = await showDatePicker(
         context: context,
-        initialDate: DateTime.now(),
+        initialDate: DateTime(2000),
         firstDate: DateTime(1940),
         lastDate: DateTime(2030),
       );

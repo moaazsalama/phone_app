@@ -2,8 +2,10 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:phone_lap/helpers/size_config.dart';
+import 'package:phone_lap/pages/login_page.dart';
 import 'package:phone_lap/pages/orders_page.dart';
 import 'package:phone_lap/providers/analyzer.dart';
+import 'package:phone_lap/providers/auth.dart';
 import 'package:phone_lap/providers/languagesprovider.dart';
 import 'package:provider/provider.dart';
 
@@ -35,24 +37,25 @@ class MainDrawer extends StatelessWidget {
         return Drawer(
           child: Column(
             children: <Widget>[
-              UserAccountsDrawerHeader(
-                  currentAccountPicture: Container(
-                    decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        border: Border.all(color: Colors.white)),
-                    padding: const EdgeInsets.all(2),
-                    clipBehavior: Clip.antiAliasWithSaveLayer,
-                    child: CircleAvatar(
-                      child: Image.asset(
-                          user!.gender
-                              ? 'assets/icon/business-man.png'
-                              : 'assets/icon/woman.png',
-                          fit: BoxFit.cover),
-                      radius: getProportionScreenration(30),
+              if (user != null)
+                UserAccountsDrawerHeader(
+                    currentAccountPicture: Container(
+                      decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          border: Border.all(color: Colors.white)),
+                      padding: const EdgeInsets.all(2),
+                      clipBehavior: Clip.antiAliasWithSaveLayer,
+                      child: CircleAvatar(
+                        child: Image.asset(
+                            user.gender
+                                ? 'assets/icon/business-man.png'
+                                : 'assets/icon/woman.png',
+                            fit: BoxFit.cover),
+                        radius: getProportionScreenration(30),
+                      ),
                     ),
-                  ),
-                  accountName: Text(user.name),
-                  accountEmail: Text('${user.email}')),
+                    accountName: Text(user.name),
+                    accountEmail: Text('${user.email}')),
               const SizedBox(
                 height: 20,
               ),
@@ -103,7 +106,13 @@ class MainDrawer extends StatelessWidget {
               buildListTile(
                   AppLocalizations.of(context)!.logout, Icons.logout_outlined,
                   () async {
-                await FirebaseAuth.instance.signOut();
+                await Navigator.pushReplacementNamed(
+                    context, LoginPage.routeName);
+                print('${FirebaseAuth.instance.currentUser.toString()} data');
+                Provider.of<AnalyzerProvider>(context, listen: false).clear();
+                await Provider.of<AuthProvider>(context, listen: false)
+                    .signOut();
+                //      Navigator.pushReplacementNamed(context, LoginPage.routeName);
               }),
             ],
           ),

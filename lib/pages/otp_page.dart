@@ -1,13 +1,19 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:numeric_keyboard/numeric_keyboard.dart';
 import 'package:oktoast/oktoast.dart';
 import 'package:phone_lap/helpers/size_config.dart';
+import 'package:phone_lap/models/analyzer.dart';
+import 'package:phone_lap/pages/home_page.dart';
+import 'package:phone_lap/pages/info_page.dart';
+import 'package:phone_lap/providers/analyzer.dart';
 import 'package:provider/provider.dart';
 
 import '../providers/auth.dart';
 import '../theme.dart';
+import 'admin_page.dart';
 
 class OtpPage extends StatefulWidget {
   static String routeName = 'otp-Page';
@@ -20,9 +26,10 @@ class _OtpPageState extends State<OtpPage> {
   String text = '';
 
   void _onKeyboardTap(String value) {
-    setState(() {
-      text = text + value;
-    });
+    if (text.length < 6)
+      setState(() {
+        text = text + value;
+      });
   }
 
   Widget otpNumberWidget(int position) {
@@ -112,12 +119,41 @@ class _OtpPageState extends State<OtpPage> {
                 constraints: const BoxConstraints(maxWidth: 500),
                 child: ElevatedButton(
                   onPressed: () async {
-                    final bool =
-                        await Provider.of<AuthProvider>(context, listen: false)
-                            .signInWithPhoneNumber(text);
-                    if (bool)
-                      Navigator.pop(context);
-                    else
+                    print(text);
+                    late bool bools;
+                    try {
+                      bools = await Provider.of<AuthProvider>(context,
+                              listen: false)
+                          .signInWithPhoneNumber(text);
+                    } on Exception catch (e) {
+                      print('${e.toString()} otp');
+                    }
+                    if (bools) {
+                      final bool isNew =
+                          Provider.of<AuthProvider>(context, listen: false)
+                              .isNew;
+                      if (isNew) {
+                        Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => InfoScreen(),
+                            ));
+                      } else {
+                        final analyzer = await Provider.of<AnalyzerProvider>(context,
+                                listen: false)
+                            .getAnalyzer(FirebaseAuth.instance.currentUser!.uid);
+                        final value = await Provider.of<AuthProvider>(context,
+                                listen: false)
+                            .isAdmin(analyzer!.email);
+                        print(value);
+                        if (value)
+                          Navigator.of(context)
+                              .pushReplacementNamed(AdminPage.routeName);
+                        else
+                          Navigator.of(context)
+                              .pushReplacementNamed(HomePage.routeName);
+                      }
+                    } else
                       showToast(AppLocalizations.of(context)!.codeincorrect,
                           duration: const Duration(seconds: 2),
                           position: ToastPosition.bottom,
