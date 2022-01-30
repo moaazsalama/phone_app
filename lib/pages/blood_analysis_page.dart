@@ -3,10 +3,10 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:phone_lap/helpers/size_config.dart';
 import 'package:phone_lap/models/analysis.dart';
 import 'package:phone_lap/models/analysisType.dart';
-import 'package:phone_lap/providers/analyzer.dart';
+import 'package:phone_lap/pages/cart_screen.dart';
+import 'package:phone_lap/providers/cart.dart';
 import 'package:phone_lap/providers/google_sheets_Api.dart';
-import 'package:phone_lap/providers/order.dart';
-import 'package:phone_lap/widgets/button.dart';
+import 'package:phone_lap/theme.dart';
 import 'package:provider/provider.dart';
 
 class BloodAnalysisPage extends StatelessWidget {
@@ -90,6 +90,47 @@ class BloodAnalysisPage extends StatelessWidget {
           )
         ],
       ),
+      floatingActionButton: Container(
+        alignment: Alignment.center,
+        height: getProportionateScreenHeight(60),
+        width: getProportionateScreenWidth(60),
+        decoration: BoxDecoration(
+            color: MyColors.primaryColor,
+            borderRadius: BorderRadius.circular(30)),
+        child: Stack(
+          alignment: Alignment.center,
+          children: [
+            Align(
+              alignment: Alignment.center,
+              child: IconButton(
+                  onPressed: () async {
+                    Navigator.pop(context);
+                    await Navigator.pushReplacementNamed(
+                        context, CartScreen.routname);
+                  },
+                  icon: Icon(
+                    Icons.shopping_bag_outlined,
+                    size: getProportionScreenration(30),
+                  )),
+            ),
+            Positioned(
+              right: getProportionateScreenWidth(10),
+              top: getProportionateScreenHeight(10),
+              child: Container(
+                alignment: Alignment.center,
+                height: getProportionateScreenHeight(20),
+                width: getProportionateScreenWidth(20),
+                child: Text(
+                  Provider.of<Cart>(context).itemCount.toString(),
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                ),
+                decoration: BoxDecoration(
+                    color: Colors.red, borderRadius: BorderRadius.circular(10)),
+              ),
+            )
+          ],
+        ),
+      ),
     );
   }
 }
@@ -100,70 +141,26 @@ class AnalysisItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      height: getProportionateScreenHeight(200),
-      child: InkWell(
-        onTap: () {
-          showModalBottomSheet(
-            context: context,
-            elevation: 5,
-            clipBehavior: Clip.antiAlias,
-            builder: (context) {
-              return Container(
-                alignment: Alignment.center,
-                height: SizeConfig.screenHeight / 4,
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    Text(
-                      AppLocalizations.of(context)!.sure,
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        color: Theme.of(context).primaryColor,
-                        fontWeight: FontWeight.bold,
-                        fontSize: getProportionScreenration(20),
-                      ),
-                    ),
-                    SizedBox(
-                      height: SizeConfig.screenHeight / 16,
-                    ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: [
-                        Button(
-                          title: AppLocalizations.of(context)!.yes,
-                          onPressed: () async {
-                            final analyzer = Provider.of<AnalyzerProvider>(
-                                    context,
-                                    listen: false)
-                                .analyzer;
-                            await Provider.of<Orders>(context, listen: false)
-                                .sendOrder(
-                                    OrderItem(
-                                        analysis: analysis,
-                                        user: analyzer!,
-                                        id: 'uid',
-                                        dateTime: DateTime.now(),
-                                        isDeliverd: 'no'),
-                                    'blood');
-                            Navigator.pop(context);
-                          },
-                        ),
-                        Button(
-                          title: AppLocalizations.of(context)!.no,
-                          onPressed: () {
-                            Navigator.pop(context);
-                          },
-                        )
-                      ],
-                    )
-                  ],
-                ),
-              );
-            },
-          );
-        },
+    return InkWell(
+      onTap: () {
+        final cart = Provider.of<Cart>(context, listen: false);
+        final addItem = cart.addItem(analysis);
+        if (addItem == true) {
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+            content: Text(AppLocalizations.of(context)!.addcart),
+            duration: const Duration(seconds: 1),
+            dismissDirection: DismissDirection.horizontal,
+            action: SnackBarAction(
+              label: AppLocalizations.of(context)!.undo,
+              onPressed: () {
+                cart.removeItem(analysis);
+              },
+            ),
+          ));
+        }
+      },
+      child: SizedBox(
+        height: getProportionateScreenHeight(200),
         child: Card(
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(15),

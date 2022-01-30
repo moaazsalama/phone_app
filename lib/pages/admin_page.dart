@@ -6,6 +6,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:path_provider/path_provider.dart';
@@ -36,6 +37,7 @@ class _AdminPageState extends State<AdminPage> {
   Future<QuerySnapshot<Map<String, dynamic>>> dataSet =
       FirebaseFirestore.instance.collection('users').get();
   bool isFirst = true;
+  bool showFinshed = false;
   @override
   Widget build(BuildContext context) {
     SizeConfig().init(context);
@@ -72,14 +74,17 @@ class _AdminPageState extends State<AdminPage> {
                     children: [
                       IconButton(
                           onPressed: () async {
-                            await Navigator.pushReplacementNamed(
-                                context, LoginPage.routeName);
-                            Provider.of<AnalyzerProvider>(context,
-                                    listen: false)
-                                .clear();
-                            await Provider.of<AuthProvider>(context,
-                                    listen: false)
-                                .signOut();
+                            try {
+                              await Navigator.pushReplacementNamed(
+                                  context, LoginPage.routeName);
+
+                              await Provider.of<AuthProvider>(context,
+                                      listen: false)
+                                  .signOut();
+                              Provider.of<AnalyzerProvider>(context,
+                                      listen: true)
+                                  .clear();
+                            } catch (e) {}
                           },
                           icon: const Icon(
                             Icons.arrow_back,
@@ -95,6 +100,20 @@ class _AdminPageState extends State<AdminPage> {
                       ),
                     ],
                   ),
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Text('Show Finished Oreders ?'),
+                    Checkbox(
+                      value: showFinshed,
+                      onChanged: (value) {
+                        setState(() {
+                          showFinshed = value!;
+                        });
+                      },
+                    ),
+                  ],
                 ),
                 StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
                     stream: Provider.of<Orders>(context).fetchAllOrders(),
@@ -118,18 +137,60 @@ class _AdminPageState extends State<AdminPage> {
                                           fontWeight: FontWeight.bold),
                                     ),
                                   )
-                                : ListView.builder(
-                                    padding: EdgeInsets.zero,
-                                    itemBuilder: (context, index) {
+                                : Builder(builder: (context) {
+                                    List<OrderWidgetAdmin> finish = [];
+                                    List<OrderWidgetAdmin> notFinished = [];
+                                    for (var index = 0;
+                                        index < docs.length;
+                                        index++) {
                                       var orderItem =
                                           OrderItem.fromMap(docs[index].data());
                                       if (orderItem.id == null)
                                         orderItem = orderItem.copyWith(id: '');
-                                      return OrderWidgetAdmin(
-                                          request: orderItem);
-                                    },
-                                    itemCount: docs.length,
-                                  ),
+                                      bool finished = true;
+                                      for (var item in orderItem.analysis) {
+                                        if (item.resultUrl == null) {
+                                          finished = false;
+                                          break;
+                                        }
+                                      }
+                                      if (finished) {
+                                        finish.add(OrderWidgetAdmin(
+                                            request: orderItem));
+                                      } else
+                                        notFinished.add(OrderWidgetAdmin(
+                                            request: orderItem));
+                                    }
+
+                                    return Column(
+                                      children: [
+                                        if (!showFinshed)
+                                          Expanded(
+                                            flex: 2,
+                                            child: ListView.builder(
+                                              padding: EdgeInsets.zero,
+                                              itemBuilder: (context, index) {
+                                                return notFinished[index];
+                                              },
+                                              itemCount: notFinished.length,
+                                            ),
+                                          ),
+                                        if (showFinshed)
+                                          const Text('Finished Orders'),
+                                        if (showFinshed)
+                                          Expanded(
+                                            flex: 1,
+                                            child: ListView.builder(
+                                              padding: EdgeInsets.zero,
+                                              itemBuilder: (context, index) {
+                                                return finish[index];
+                                              },
+                                              itemCount: finish.length,
+                                            ),
+                                          ),
+                                      ],
+                                    );
+                                  }),
                           ),
                         );
                       }
@@ -164,405 +225,197 @@ class _OrderWidgetAdminState extends State<OrderWidgetAdmin> {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
+    return Padding(
+      padding: const EdgeInsets.all(8),
       child: ExpansionTile(
-        collapsedBackgroundColor:
-            widget.request.resultUrl == null ? Colors.red : Colors.green,
-        subtitle: widget.request.travlingCountry == null
-            ? null
-            : Text(
-                widget.request.travlingCountry!,
-                textAlign: TextAlign.start,
-                softWrap: true,
-                style: TextStyle(
-                    color: Colors.redAccent,
-                    fontSize: getProportionScreenration(20),
-                    fontWeight: FontWeight.bold),
-              ),
+        backgroundColor: Colors.white,
+        collapsedBackgroundColor: Colors.white,
         title: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Expanded(
-              child: Text(
-                widget.request.analysis.name.toUpperCase(),
-                textAlign: TextAlign.start,
-                softWrap: true,
-                style: TextStyle(
-                    color: Colors.black,
-                    fontSize: getProportionScreenration(20),
-                    fontWeight: FontWeight.bold),
-              ),
-            ),
             Text(
-              '${DateFormat('y/M/d hh:mm ').add_j().format(widget.request.dateTime)}',
-              textAlign: TextAlign.start,
-              softWrap: true,
-              style: TextStyle(
-                  color: Colors.black,
-                  fontSize: getProportionScreenration(14),
-                  fontWeight: FontWeight.w400),
+              '${widget.request.totalPrice}\$',
+              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
             ),
+            Text(DateFormat('dd/MM/yyyy').format(widget.request.dateTime)),
           ],
         ),
-        expandedAlignment: Alignment.bottomLeft,
-        children: [
-          if (widget.request.passportImageUrl != null)
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    'PassPort Image',
-                    textAlign: TextAlign.start,
-                    softWrap: true,
-                    style: TextStyle(
-                        color: Colors.black,
-                        fontSize: getProportionScreenration(14),
-                        fontWeight: FontWeight.w600),
-                  ),
-                  InkWell(
-                    onTap: () async {
-                      await launch(widget.request.passportImageUrl!);
-                    },
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(40),
-                      child: Image(
-                        image: NetworkImage(
-                          widget.request.passportImageUrl!,
-                        ),
-                        fit: BoxFit.cover,
-                        height: getProportionateScreenHeight(80),
-                        width: getProportionateScreenWidth(80),
+        subtitle: Text('عدد المنتجات ${widget.request.analysis.length}'),
+        children: widget.request.analysis.map((product) {
+          return Padding(
+            padding: const EdgeInsets.all(4.0),
+            child: Column(
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      AppLocalizations.of(context)!.analysisname,
+                      style: const TextStyle(
+                          color: Colors.red,
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold),
+                    ),
+                    Text(
+                      product.analysis.name,
+                      style: const TextStyle(
+                        fontSize: 18,
                       ),
                     ),
+                  ],
+                ),
+                const SizedBox(
+                  height: 3,
+                ),
+                if (product.passportImageUrl != null)
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(20),
+                        child: Image.network(
+                          product.passportImageUrl!,
+                          fit: BoxFit.cover,
+                          width: getProportionateScreenWidth(100),
+                          height: getProportionateScreenHeight(100),
+                        ),
+                      ),
+                      const Expanded(
+                        child: Text(
+                          'Image',
+                          style: TextStyle(
+                            fontSize: 14,
+                          ),
+                        ),
+                      ),
+                    ].reversed.toList(),
                   ),
-                ],
-              ),
-            ),
-          if (widget.request.travlingCountry != null)
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    'Travling Country',
-                    textAlign: TextAlign.start,
-                    softWrap: true,
-                    style: TextStyle(
-                        color: Colors.black,
-                        fontSize: getProportionScreenration(14),
-                        fontWeight: FontWeight.w600),
+                const SizedBox(
+                  height: 3,
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      AppLocalizations.of(context)!.price,
+                      style: const TextStyle(
+                        color: Colors.red,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 18,
+                      ),
+                    ),
+                    Text(
+                      product.analysis.price,
+                      style: const TextStyle(
+                        fontSize: 14,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(
+                  height: 3,
+                ),
+                if (product.flightLine != null)
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        AppLocalizations.of(context)!.flightline,
+                        style: const TextStyle(
+                          color: Colors.red,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 18,
+                        ),
+                      ),
+                      Text(
+                        product.flightLine!,
+                        style: const TextStyle(
+                          fontSize: 14,
+                        ),
+                      ),
+                    ],
                   ),
-                  Text(
-                    widget.request.travlingCountry!,
-                    textAlign: TextAlign.start,
-                    softWrap: true,
-                    style: TextStyle(
-                        color: Colors.black,
-                        fontSize: getProportionScreenration(14),
-                        fontWeight: FontWeight.w600),
-                  ),
-                ],
-              ),
-            ),
-          if (widget.request.flightLine != null)
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    'Flight Line',
-                    textAlign: TextAlign.start,
-                    softWrap: true,
-                    style: TextStyle(
-                        color: Colors.black,
-                        fontSize: getProportionScreenration(14),
-                        fontWeight: FontWeight.w600),
-                  ),
-                  Text(
-                    widget.request.flightLine!,
-                    textAlign: TextAlign.start,
-                    softWrap: true,
-                    style: TextStyle(
-                        color: Colors.black,
-                        fontSize: getProportionScreenration(14),
-                        fontWeight: FontWeight.w600),
-                  ),
-                ],
-              ),
-            ),
-          if (widget.request.flightLine != null)
-            Divider(
-              color: Theme.of(context).primaryColor,
-            ),
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  'Analysis Name',
-                  textAlign: TextAlign.start,
-                  softWrap: true,
-                  style: TextStyle(
-                      color: Colors.black,
-                      fontSize: getProportionScreenration(14),
-                      fontWeight: FontWeight.w600),
+                const SizedBox(
+                  height: 10,
                 ),
-                Text(
-                  widget.request.analysis.name,
-                  textAlign: TextAlign.start,
-                  softWrap: true,
-                  style: TextStyle(
-                      color: Colors.black,
-                      fontSize: getProportionScreenration(14),
-                      fontWeight: FontWeight.w600),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      AppLocalizations.of(context)!.result,
+                      style: const TextStyle(
+                        color: Colors.red,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 18,
+                      ),
+                    ),
+                    if (product.resultUrl != null)
+                      TextButton(
+                          onPressed: () {
+                            launch(product.resultUrl!);
+                          },
+                          child: Text(
+                            AppLocalizations.of(context)!.result,
+                            maxLines: 1,
+                            overflow: TextOverflow.clip,
+                          ))
+                    else
+                      Text(
+                        AppLocalizations.of(context)!.noresults,
+                        style: const TextStyle(
+                          fontSize: 14,
+                        ),
+                      ),
+                  ],
                 ),
-              ],
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  'Prcie',
-                  textAlign: TextAlign.start,
-                  softWrap: true,
-                  style: TextStyle(
-                      color: Colors.black,
-                      fontSize: getProportionScreenration(14),
-                      fontWeight: FontWeight.w600),
-                ),
-                Text(
-                  widget.request.analysis.price,
-                  textAlign: TextAlign.start,
-                  softWrap: true,
-                  style: TextStyle(
-                      color: Colors.black,
-                      fontSize: getProportionScreenration(14),
-                      fontWeight: FontWeight.w600),
-                ),
-              ],
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  'Analyzer Name',
-                  textAlign: TextAlign.start,
-                  softWrap: true,
-                  style: TextStyle(
-                      color: Colors.black,
-                      fontSize: getProportionScreenration(14),
-                      fontWeight: FontWeight.w600),
-                ),
-                Text(
-                  widget.request.user.name,
-                  textAlign: TextAlign.start,
-                  softWrap: true,
-                  style: TextStyle(
-                      color: Colors.black,
-                      fontSize: getProportionScreenration(14),
-                      fontWeight: FontWeight.w600),
-                ),
-              ],
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  'Analyzer Phone',
-                  textAlign: TextAlign.start,
-                  softWrap: true,
-                  style: TextStyle(
-                      color: Colors.black,
-                      fontSize: getProportionScreenration(14),
-                      fontWeight: FontWeight.w600),
-                ),
-                Text(
-                  widget.request.user.phone,
-                  textAlign: TextAlign.start,
-                  softWrap: true,
-                  style: TextStyle(
-                      color: Colors.black,
-                      fontSize: getProportionScreenration(14),
-                      fontWeight: FontWeight.w600),
-                ),
-              ],
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  'Analyzer Address',
-                  textAlign: TextAlign.start,
-                  softWrap: true,
-                  style: TextStyle(
-                      color: Colors.black,
-                      fontSize: getProportionScreenration(14),
-                      fontWeight: FontWeight.w600),
-                ),
-                Text(
-                  widget.request.user.address,
-                  textAlign: TextAlign.start,
-                  softWrap: true,
-                  style: TextStyle(
-                      color: Colors.black,
-                      fontSize: getProportionScreenration(14),
-                      fontWeight: FontWeight.w600),
-                ),
-              ],
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  'Analyzer Gender',
-                  textAlign: TextAlign.start,
-                  softWrap: true,
-                  style: TextStyle(
-                      color: Colors.black,
-                      fontSize: getProportionScreenration(14),
-                      fontWeight: FontWeight.w600),
-                ),
-                Text(
-                  widget.request.user.gender ? 'Male' : 'Female',
-                  textAlign: TextAlign.start,
-                  softWrap: true,
-                  style: TextStyle(
-                      color: Colors.black,
-                      fontSize: getProportionScreenration(14),
-                      fontWeight: FontWeight.w600),
-                ),
-              ],
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  'Analyzer Date',
-                  textAlign: TextAlign.start,
-                  softWrap: true,
-                  style: TextStyle(
-                      color: Colors.black,
-                      fontSize: getProportionScreenration(14),
-                      fontWeight: FontWeight.w600),
-                ),
-                Text(
-                  widget.request.user.date,
-                  textAlign: TextAlign.start,
-                  softWrap: true,
-                  style: TextStyle(
-                      color: Colors.black,
-                      fontSize: getProportionScreenration(14),
-                      fontWeight: FontWeight.w600),
-                ),
-              ],
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  'Analsis Is Deliverd ?!',
-                  textAlign: TextAlign.start,
-                  softWrap: true,
-                  style: TextStyle(
-                      color: Colors.black,
-                      fontSize: getProportionScreenration(14),
-                      fontWeight: FontWeight.w600),
-                ),
-                Text(
-                  widget.request.isDeliverd.toUpperCase(),
-                  textAlign: TextAlign.start,
-                  softWrap: true,
-                  style: TextStyle(
-                      color: Colors.black,
-                      fontSize: getProportionScreenration(14),
-                      fontWeight: FontWeight.w600),
-                ),
-              ],
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  'Result Link',
-                  textAlign: TextAlign.start,
-                  softWrap: true,
-                  style: TextStyle(
-                      color: Colors.black,
-                      fontSize: getProportionScreenration(14),
-                      fontWeight: FontWeight.w600),
-                ),
-                SizedBox(
-                  width: getProportionateScreenWidth(200),
-                  child: Text(
-                    widget.request.resultUrl ?? 'Not Avalibale',
-                    textAlign: TextAlign.start,
-                    softWrap: true,
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                        color: Colors.black,
-                        fontSize: getProportionScreenration(14),
-                        fontWeight: FontWeight.w600),
-                  ),
-                ),
-              ],
-            ),
-          ),
-          Button(
-              title: 'Send The Resuilt By Photo',
-              onPressed: () async {
-                try {
-                  final result =
-                      await imagePicker.pickImage(source: ImageSource.gallery);
+                Button(
+                    title: 'Send The Resuilt By Photo',
+                    onPressed: () async {
+                      try {
+                        final result = await imagePicker.pickImage(
+                            source: ImageSource.gallery);
 
-                  if (result != null) _imageFile = File(result.path);
-                  createpdf(_imageFile);
-                  await savepdf(widget.request.id!);
-                  final url = await uploadPdf(context);
-                  await widget.request.deliver(url);
-                } catch (e) {}
-              }),
-          Button(
-              title: 'Send The Resuilt By PDF ',
-              onPressed: () async {
-                try {
-                  final pickFiles = await FilePicker.platform.pickFiles();
-                  if (pickFiles != null) {
-                    finalpdf = File(pickFiles.files.single.path!);
-                    final url = await uploadPdf(context);
-                    await widget.request.deliver(url);
-                  }
-                } on Exception {}
-              })
-        ],
+                        if (result != null) {
+                          _imageFile = File(result.path);
+                          createpdf(_imageFile);
+                          await savepdf(widget.request.id!);
+                          final url = await uploadPdf(context);
+                          print(url);
+                          await Provider.of<Orders>(context, listen: false)
+                              .deliverAnalysis(
+                                  url!, widget.request, product.analysis);
+                        }
+                        //await widget.request.deliver(url);
+                      } catch (e) {
+                        print(e.toString() + 'hello');
+                      }
+                    }),
+                Button(
+                    title: 'Send The Resuilt By PDF ',
+                    onPressed: () async {
+                      try {
+                        final pickFiles = await FilePicker.platform.pickFiles();
+                        if (pickFiles != null) {
+                          finalpdf = File(pickFiles.files.single.path!);
+                          final url = await uploadPdf(context);
+                          await Provider.of<Orders>(context, listen: false)
+                              .deliverAnalysis(
+                                  url!, widget.request, product.analysis);
+                          // await widget.request.deliver(url);
+                        }
+                      } on Exception {}
+                    }),
+                const SizedBox(
+                  height: 10,
+                ),
+                const Divider(
+                  height: 10,
+                  color: Colors.black,
+                )
+              ],
+            ),
+          );
+        }).toList(),
       ),
     );
   }
@@ -577,16 +430,20 @@ class _OrderWidgetAdminState extends State<OrderWidgetAdmin> {
     ));
   }
 
-  Future<String> uploadPdf(context) async {
-    final analyzer =
-        Provider.of<AnalyzerProvider>(context, listen: false).userId;
-    final task = await FirebaseStorage.instance
-        .ref()
-        .child('${analyzer!}/${finalpdf!.path.split('/').last}')
-        .putFile(finalpdf!);
-    final String url = await task.ref.getDownloadURL();
+  Future<String?> uploadPdf(context) async {
+    try {
+      final analyzer =
+          Provider.of<AnalyzerProvider>(context, listen: false).userId;
+      final task = await FirebaseStorage.instance
+          .ref()
+          .child('${analyzer!}/${finalpdf!.path.split('/').last}')
+          .putFile(finalpdf!);
+      final String url = await task.ref.getDownloadURL();
 
-    return url;
+      return url;
+    } on Exception catch (e) {
+      print(e.toString());
+    }
   }
 
   Future<void> savepdf(String name) async {

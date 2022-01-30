@@ -118,6 +118,8 @@ class UserSheetApi {
           await _admins!.values.map.allRows(fromRow: 1);
 
       return List.generate(data!.length, (index) => data[index]['email']!);
+    } else {
+      return admins;
     }
   }
 

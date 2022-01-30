@@ -9,7 +9,7 @@ import 'package:phone_lap/helpers/size_config.dart';
 import 'package:phone_lap/models/analysis.dart';
 import 'package:phone_lap/models/analyzer.dart';
 import 'package:phone_lap/providers/analyzer.dart';
-import 'package:phone_lap/providers/order.dart';
+import 'package:phone_lap/providers/cart.dart';
 import 'package:phone_lap/widgets/button.dart';
 import 'package:provider/provider.dart';
 
@@ -272,23 +272,13 @@ class _PrescriptionDataState extends State<PrescriptionData> {
             .child('${user.analyzerId}/${_pickedImage!.path.split('/').last}')
             .putFile(_pickedImage!);
         final s = await taskSnapshot.ref.getDownloadURL();
-        final orderItem = OrderItem(
-            analysis: Analysis(
-                name: 'PrescriptionData',
-                analysisType: 'PrescriptionData',
-                price: '500'),
-            user: user,
-            id: 'id',
-            dateTime: DateTime.now(),
-            passportImageUrl: s,
-            //flightLine: _lineController.text,
-            //travlingCountry: _countryController.text,
-            isDeliverd: 'no');
-        // ignore: prefer_final_locals
-        var map = orderItem.toMap();
-        map.remove('id');
-        await Provider.of<Orders>(context, listen: false)
-            .sendOrder(orderItem, 'blood');
+        final analysis = Analysis(
+            name: 'PrescriptionData',
+            analysisType: 'PrescriptionData',
+            price: '00');
+
+        Provider.of<Cart>(context, listen: false)
+            .addItem(analysis, passportImageUrl: s);
       } catch (e) {
         showToast(
           AppLocalizations.of(context)!.noconnection,

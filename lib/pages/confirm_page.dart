@@ -5,8 +5,8 @@ import 'package:phone_lap/helpers/size_config.dart';
 import 'package:phone_lap/models/analysis.dart';
 import 'package:phone_lap/pages/pcr_data_page.dart';
 import 'package:phone_lap/providers/analyzer.dart';
+import 'package:phone_lap/providers/cart.dart';
 import 'package:phone_lap/providers/languagesprovider.dart';
-import 'package:phone_lap/providers/order.dart';
 import 'package:phone_lap/widgets/button.dart';
 import 'package:provider/provider.dart';
 
@@ -203,39 +203,30 @@ class _ConfirmPageState extends State<ConfirmPage> {
                                       });
                                       final analysis = Analysis(
                                           name: 'PCR',
-                                          price: '70LE',
+                                          price: '70',
                                           analysisType: 'PCR');
+                                      // ignore: unused_local_variable
                                       final user =
                                           Provider.of<AnalyzerProvider>(context,
                                                   listen: false)
                                               .analyzer;
-                                      final orderItem = OrderItem(
-                                          analysis: analysis,
-                                          user: user!,
-                                          id: 'id',
-                                          dateTime: DateTime.now(),
-                                          isDeliverd: 'no');
+                                      final cart = Provider.of<Cart>(context,
+                                          listen: false);
 
-                                      await Provider.of<Orders>(context,
-                                              listen: false)
-                                          .sendOrder(orderItem, 'pcrNormal');
-                                      Future.delayed(const Duration(seconds: 5),
-                                          () {
-                                        Navigator.pop(context);
-                                        showToast(
-                                          AppLocalizations.of(context)!
-                                              .requestsuccessful,
-                                          duration: const Duration(seconds: 2),
-                                          position: ToastPosition.center,
-                                          backgroundColor:
-                                              Colors.black.withOpacity(0.8),
-                                          radius: 3.0,
-                                          textStyle: TextStyle(
-                                              fontSize:
-                                                  getProportionScreenration(
-                                                      20.0)),
-                                        );
-                                      });
+                                      cart.addItem(analysis);
+                                      Navigator.pop(context);
+                                      showToast(
+                                        AppLocalizations.of(context)!
+                                            .requestsuccessful,
+                                        duration: const Duration(seconds: 2),
+                                        position: ToastPosition.center,
+                                        backgroundColor:
+                                            Colors.black.withOpacity(0.8),
+                                        radius: 3.0,
+                                        textStyle: TextStyle(
+                                            fontSize: getProportionScreenration(
+                                                20.0)),
+                                      );
                                     }),
                                 SizedBox(
                                   height: SizeConfig.screenHeight * .01,

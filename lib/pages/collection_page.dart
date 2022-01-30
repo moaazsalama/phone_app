@@ -5,8 +5,7 @@ import 'package:oktoast/oktoast.dart';
 import 'package:phone_lap/helpers/size_config.dart';
 import 'package:phone_lap/models/analysis.dart';
 import 'package:phone_lap/models/analysisType.dart';
-import 'package:phone_lap/providers/analyzer.dart';
-import 'package:phone_lap/providers/order.dart';
+import 'package:phone_lap/providers/cart.dart';
 import 'package:phone_lap/widgets/button.dart';
 import 'package:provider/provider.dart';
 
@@ -102,16 +101,18 @@ class _CollectionPageState extends State<CollectionPage> {
                         if (widget
                             .selctors[widget.analysisList.indexOf(analysis)]) {
                           try {
-                            final orderItem = OrderItem(
-                                isDeliverd: 'no',
-                                analysis: analysis,
-                                user: Provider.of<AnalyzerProvider>(context,
-                                        listen: false)
-                                    .analyzer!,
-                                id: 'id',
-                                dateTime: DateTime.now());
-                            await Provider.of<Orders>(context, listen: false)
-                                .sendOrder(orderItem, 'blood');
+                            Provider.of<Cart>(context, listen: false)
+                                .addItem(analysis);
+                            // final orderItem = OrderItem(
+                            //     isDeliverd: 'no',
+                            //     analysis: analysis,
+                            //     user: Provider.of<AnalyzerProvider>(context,
+                            //             listen: false)
+                            //         .analyzer!,
+                            //     id: 'id',
+                            //     dateTime: DateTime.now());
+                            // await Provider.of<Orders>(context, listen: false)
+                            //     .sendOrder(orderItem, 'blood');
                           } catch (e) {
                             showToast(
                               AppLocalizations.of(context)!.noconnection,

@@ -1,6 +1,7 @@
 // ignore_for_file: avoid_bool_literals_in_conditional_expressions
 
 import 'package:country_code_picker/country_code_picker.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
@@ -318,9 +319,11 @@ class _LoginPageState extends State<LoginPage> {
                               builder: (context) => InfoScreen(),
                             ));
                       } else {
-                        final analyzer = Provider.of<AnalyzerProvider>(context,
+                        final analyzer = await Provider.of<AnalyzerProvider>(
+                                context,
                                 listen: false)
-                            .analyzer;
+                            .getAnalyzer(
+                                FirebaseAuth.instance.currentUser!.uid);
                         final value = await Provider.of<AuthProvider>(context,
                                 listen: false)
                             .isAdmin(analyzer!.email);

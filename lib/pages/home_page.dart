@@ -8,18 +8,20 @@ import 'package:phone_lap/models/analysis.dart';
 import 'package:phone_lap/models/analysisType.dart';
 import 'package:phone_lap/models/analyzer.dart';
 import 'package:phone_lap/pages/blood_page.dart';
+import 'package:phone_lap/pages/cart_screen.dart';
 import 'package:phone_lap/pages/collection_page.dart';
 import 'package:phone_lap/pages/confirm_page.dart';
-import 'package:phone_lap/pages/orders_page.dart';
 import 'package:phone_lap/pages/prescription_data.dart';
 import 'package:phone_lap/pages/search_page.dart';
 import 'package:phone_lap/providers/analyzer.dart';
+import 'package:phone_lap/providers/cart.dart';
 import 'package:phone_lap/providers/google_sheets_Api.dart';
 import 'package:phone_lap/providers/languagesprovider.dart';
-import 'package:phone_lap/providers/order.dart';
 import 'package:phone_lap/widgets/button.dart';
 import 'package:phone_lap/widgets/main_drawer.dart';
 import 'package:provider/provider.dart';
+
+import '../theme.dart';
 
 class HomePage extends StatefulWidget {
   static const String routeName = 'home-Page';
@@ -47,7 +49,7 @@ class _HomePageState extends State<HomePage> {
                 );
 
               final user = Provider.of<AnalyzerProvider>(context).analyzer;
-              print(user.toString());
+
               return Stack(
                 children: [
                   Opacity(
@@ -92,19 +94,21 @@ class _HomePageState extends State<HomePage> {
                                       color: Colors.white,
                                       size: getProportionScreenration(30),
                                     )),
-                                left: Provider.of<LanguageChangeProvider>(context)
-                                            .current!
-                                            .languageCode ==
-                                        'en'
-                                    ? getProportionateScreenWidth(5)
-                                    : null,
+                                left:
+                                    Provider.of<LanguageChangeProvider>(context)
+                                                .current!
+                                                .languageCode ==
+                                            'en'
+                                        ? getProportionateScreenWidth(5)
+                                        : null,
                                 top: getProportionateScreenHeight(15),
-                                right: Provider.of<LanguageChangeProvider>(context)
-                                            .current!
-                                            .languageCode ==
-                                        'ar'
-                                    ? getProportionateScreenWidth(5)
-                                    : null,
+                                right:
+                                    Provider.of<LanguageChangeProvider>(context)
+                                                .current!
+                                                .languageCode ==
+                                            'ar'
+                                        ? getProportionateScreenWidth(5)
+                                        : null,
                               ),
                               Positioned(
                                 child: IconButton(
@@ -117,19 +121,21 @@ class _HomePageState extends State<HomePage> {
                                       color: Colors.white,
                                       size: getProportionScreenration(30),
                                     )),
-                                right: Provider.of<LanguageChangeProvider>(context)
-                                            .current!
-                                            .languageCode ==
-                                        'en'
-                                    ? getProportionateScreenWidth(5)
-                                    : null,
+                                right:
+                                    Provider.of<LanguageChangeProvider>(context)
+                                                .current!
+                                                .languageCode ==
+                                            'en'
+                                        ? getProportionateScreenWidth(5)
+                                        : null,
                                 top: getProportionateScreenHeight(15),
-                                left: Provider.of<LanguageChangeProvider>(context)
-                                            .current!
-                                            .languageCode ==
-                                        'ar'
-                                    ? getProportionateScreenWidth(5)
-                                    : null,
+                                left:
+                                    Provider.of<LanguageChangeProvider>(context)
+                                                .current!
+                                                .languageCode ==
+                                            'ar'
+                                        ? getProportionateScreenWidth(5)
+                                        : null,
                               ),
                               Align(
                                   alignment: Alignment.center,
@@ -139,10 +145,11 @@ class _HomePageState extends State<HomePage> {
                                       Container(
                                         decoration: BoxDecoration(
                                             shape: BoxShape.circle,
-                                            border:
-                                                Border.all(color: Colors.white)),
+                                            border: Border.all(
+                                                color: Colors.white)),
                                         padding: const EdgeInsets.all(2),
-                                        clipBehavior: Clip.antiAliasWithSaveLayer,
+                                        clipBehavior:
+                                            Clip.antiAliasWithSaveLayer,
                                         child: CircleAvatar(
                                           child: Image.asset(
                                               user!.gender
@@ -156,7 +163,8 @@ class _HomePageState extends State<HomePage> {
                                         width: getProportionateScreenWidth(20),
                                       ),
                                       Column(
-                                        mainAxisAlignment: MainAxisAlignment.center,
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
                                         crossAxisAlignment:
                                             CrossAxisAlignment.start,
                                         children: [
@@ -165,12 +173,14 @@ class _HomePageState extends State<HomePage> {
                                             style: TextStyle(
                                                 color: Colors.white,
                                                 fontSize:
-                                                    getProportionScreenration(24),
+                                                    getProportionScreenration(
+                                                        24),
                                                 fontWeight: FontWeight.bold),
                                           ),
                                           SizedBox(
                                             height:
-                                                getProportionateScreenHeight(10),
+                                                getProportionateScreenHeight(
+                                                    10),
                                           ),
                                           Text(
                                             '${user.phone}',
@@ -201,171 +211,205 @@ class _HomePageState extends State<HomePage> {
                           ),
                         ),
                         Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Item(
-                              onPressed: () async {
-                                try {
-                                  final analysis = Analysis(
-                                      name: 'Package Corona',
-                                      price: '70LE',
-                                      analysisType: 'PCR');
-                                  final user = Provider.of<AnalyzerProvider>(
-                                          context,
-                                          listen: false)
-                                      .analyzer;
-                                  final orderItem = OrderItem(
-                                      analysis: analysis,
-                                      user: user!,
-                                      id: 'id',
-                                      dateTime: DateTime.now(),
-                                      isDeliverd: 'no');
-
-                                  await Provider.of<Orders>(context, listen: false)
-                                      .sendOrder(orderItem, 'pcrNormal');
-
-                                  showToast(
-                                    AppLocalizations.of(context)!.requestsuccessful,
-                                    duration: const Duration(seconds: 2),
-                                    position: ToastPosition.center,
-                                    backgroundColor: Colors.black.withOpacity(0.8),
-                                    radius: 3.0,
-                                    textStyle: TextStyle(
-                                        fontSize: getProportionScreenration(20.0)),
-                                  );
-                                } on Exception {
-                                  showToast(
-                                    AppLocalizations.of(context)!.noconnection,
-                                    duration: const Duration(seconds: 2),
-                                    position: ToastPosition.center,
-                                    backgroundColor: Colors.black.withOpacity(0.8),
-                                    radius: getProportionScreenration(3),
-                                    textStyle: TextStyle(
-                                        fontSize: getProportionScreenration(20.0)),
-                                  );
-                                }
-                              },
-                              text: 'Package Corona',
-                            ),
-                            Item(
-                              onPressed: () {},
-                              text: 'Lipid Profile',
+                            Expanded(
+                              child: Item(
+                                onPressed: () async {
+                                  try {
+                                    final analysis = Analysis(
+                                        name: 'Package Corona',
+                                        price: '70',
+                                        analysisType: 'PCR');
+                                    Provider.of<Cart>(context)
+                                        .addItem(analysis);
+                                    showToast(
+                                      AppLocalizations.of(context)!
+                                          .requestsuccessful,
+                                      duration: const Duration(seconds: 2),
+                                      position: ToastPosition.center,
+                                      backgroundColor:
+                                          Colors.black.withOpacity(0.8),
+                                      radius: 3.0,
+                                      textStyle: TextStyle(
+                                          fontSize:
+                                              getProportionScreenration(20.0)),
+                                    );
+                                  } on Exception {
+                                    showToast(
+                                      AppLocalizations.of(context)!
+                                          .noconnection,
+                                      duration: const Duration(seconds: 2),
+                                      position: ToastPosition.center,
+                                      backgroundColor:
+                                          Colors.black.withOpacity(0.8),
+                                      radius: getProportionScreenration(3),
+                                      textStyle: TextStyle(
+                                          fontSize:
+                                              getProportionScreenration(20.0)),
+                                    );
+                                  }
+                                },
+                                text: 'Package Corona',
+                              ),
                             ),
                           ],
                         ),
-SizedBox(
-  height: getProportionateScreenHeight(200),
-  child:         FutureBuilder<Map<String, dynamic>>(
-        future: UserSheetApi.slider(),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState ==
-              ConnectionState.waiting)
-            return const Center(
-                child: CircularProgressIndicator());
-          else if (snapshot.hasData) {
-            return CarouselSlider.builder(
-              options: CarouselOptions(
-                height: 400.0,
-                aspectRatio: 16 / 9,
-                viewportFraction: 0.8,
-                initialPage: 0,
-                enableInfiniteScroll: true,
-                reverse: false,
-                autoPlay: true,
-                autoPlayInterval:
-                const Duration(seconds: 3),
-                autoPlayAnimationDuration:
-                const Duration(milliseconds: 800),
-                autoPlayCurve: Curves.fastOutSlowIn,
-                enlargeCenterPage: true,
-                onPageChanged: (index, reason) {},
-                scrollDirection: Axis.horizontal,
-              ),
-              itemBuilder: (context, index, realIndex) {
-                final List<AnalysisType> types =
-                snapshot.data!['analysisType'];
-                final List<Analysis> allAnalysis =
-                snapshot.data!['analysis'];
-                final current =
-                allAnalysis.where((element) {
-                  return element.analysisType ==
-                      types[index].key;
-                }).toList();
-                return Container(
-                    width:
-                    MediaQuery.of(context).size.width,
-                    margin: const EdgeInsets.symmetric(
-                        horizontal: 5.0, vertical: 5),
-                    child: Center(
-                      child: Padding(
-                        padding:
-                        const EdgeInsets.all(8.0),
-                        child: Column(
-                          children: [
-                            Text(
-                              '${types[index].anaysisType}',
-                              style: TextStyle(
-                                  fontSize:
-                                  getProportionScreenration(
-                                      20.0),
-                                  color: Colors.black,
-                                  fontWeight:
-                                  FontWeight.bold),
-                            ),
-                            Expanded(
-                                child: InkWell(
-                                  onTap: () => Navigator.of(
-                                      context)
-                                      .push(MaterialPageRoute(
-                                    builder: (context) =>
-                                        CollectionPage(
-                                            analysisList:
-                                            current,
-                                            analysisType:
-                                            types[index]),
-                                  )),
-                                  child: Container(
-                                    padding:
-                                    const EdgeInsets.all(
-                                        5),
-                                    color: Theme.of(context)
-                                        .primaryColor,
-                                    child: ListView.builder(
-                                      padding:
-                                      EdgeInsets.zero,
-                                      itemBuilder:
-                                          (context, index) {
-                                        return AnalysisItemHome(
-                                          current[index],
-                                        );
+                        SizedBox(
+                            height: getProportionateScreenHeight(200),
+                            child: FutureBuilder<Map<String, dynamic>>(
+                                future: UserSheetApi.slider(),
+                                builder: (context, snapshot) {
+                                  if (snapshot.connectionState ==
+                                      ConnectionState.waiting)
+                                    return const Center(
+                                        child: CircularProgressIndicator());
+                                  else if (snapshot.hasData) {
+                                    return CarouselSlider.builder(
+                                      options: CarouselOptions(
+                                        height: 400.0,
+                                        aspectRatio: 16 / 9,
+                                        viewportFraction: 0.8,
+                                        initialPage: 0,
+                                        enableInfiniteScroll: true,
+                                        reverse: false,
+                                        autoPlay: true,
+                                        autoPlayInterval:
+                                            const Duration(seconds: 3),
+                                        autoPlayAnimationDuration:
+                                            const Duration(milliseconds: 800),
+                                        autoPlayCurve: Curves.fastOutSlowIn,
+                                        enlargeCenterPage: true,
+                                        onPageChanged: (index, reason) {},
+                                        scrollDirection: Axis.horizontal,
+                                      ),
+                                      itemBuilder: (context, index, realIndex) {
+                                        final List<AnalysisType> types =
+                                            snapshot.data!['analysisType'];
+                                        final List<Analysis> allAnalysis =
+                                            snapshot.data!['analysis'];
+                                        final current =
+                                            allAnalysis.where((element) {
+                                          return element.analysisType ==
+                                              types[index].key;
+                                        }).toList();
+                                        return Container(
+                                            width: MediaQuery.of(context)
+                                                .size
+                                                .width,
+                                            margin: const EdgeInsets.symmetric(
+                                                horizontal: 5.0, vertical: 5),
+                                            child: Center(
+                                              child: Padding(
+                                                padding:
+                                                    const EdgeInsets.all(8.0),
+                                                child: Column(
+                                                  children: [
+                                                    Text(
+                                                      '${types[index].anaysisType}',
+                                                      style: TextStyle(
+                                                          fontSize:
+                                                              getProportionScreenration(
+                                                                  20.0),
+                                                          color: Colors.black,
+                                                          fontWeight:
+                                                              FontWeight.bold),
+                                                    ),
+                                                    Expanded(
+                                                        child: InkWell(
+                                                      onTap: () => Navigator.of(
+                                                              context)
+                                                          .push(
+                                                              MaterialPageRoute(
+                                                        builder: (context) =>
+                                                            CollectionPage(
+                                                                analysisList:
+                                                                    current,
+                                                                analysisType:
+                                                                    types[
+                                                                        index]),
+                                                      )),
+                                                      child: Container(
+                                                        padding:
+                                                            const EdgeInsets
+                                                                .all(5),
+                                                        color: Theme.of(context)
+                                                            .primaryColor,
+                                                        child: ListView.builder(
+                                                          padding:
+                                                              EdgeInsets.zero,
+                                                          itemBuilder:
+                                                              (context, index) {
+                                                            return AnalysisItemHome(
+                                                              current[index],
+                                                            );
+                                                          },
+                                                          itemCount:
+                                                              current.length,
+                                                        ),
+                                                      ),
+                                                    ))
+                                                  ],
+                                                ),
+                                              ),
+                                            ));
                                       },
                                       itemCount:
-                                      current.length,
-                                    ),
-                                  ),
-                                ))
-                          ],
-                        ),
-                      ),
-                    ));
-              },
-              itemCount:
-              snapshot.data!['analysisType'].length,
-            );
-          } else
-            return Center(
-              child: Text(AppLocalizations.of(context)!
-                  .noconnection),
-            );
-        })
-  
-)
-                       ],
+                                          snapshot.data!['analysisType'].length,
+                                    );
+                                  } else
+                                    return Center(
+                                      child: Text(AppLocalizations.of(context)!
+                                          .noconnection),
+                                    );
+                                }))
+                      ],
                     ),
                   ),
                 ],
               );
             }),
         drawer: MainDrawer(),
+        floatingActionButton: Container(
+          alignment: Alignment.center,
+          height: getProportionateScreenHeight(60),
+          width: getProportionateScreenWidth(60),
+          decoration: BoxDecoration(
+              color: MyColors.primaryColor,
+              borderRadius: BorderRadius.circular(30)),
+          child: Stack(
+            alignment: Alignment.center,
+            children: [
+              Align(
+                alignment: Alignment.center,
+                child: IconButton(
+                    onPressed: () async {
+                      await Navigator.pushNamed(context, CartScreen.routname);
+                    },
+                    icon: Icon(
+                      Icons.shopping_bag_outlined,
+                      size: getProportionScreenration(30),
+                    )),
+              ),
+              Positioned(
+                right: getProportionateScreenWidth(10),
+                top: getProportionateScreenHeight(10),
+                child: Container(
+                  alignment: Alignment.center,
+                  height: getProportionateScreenHeight(20),
+                  width: getProportionateScreenWidth(20),
+                  child: Text(
+                    Provider.of<Cart>(context).itemCount.toString(),
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  ),
+                  decoration: BoxDecoration(
+                      color: Colors.red,
+                      borderRadius: BorderRadius.circular(10)),
+                ),
+              )
+            ],
+          ),
+        ),
       ),
     );
   }
@@ -446,8 +490,10 @@ SizedBox(
           child: Text(
             AppLocalizations.of(context)!.availableanalysis,
             textAlign: TextAlign.justify,
-            style:  TextStyle(
-                color: Colors.black, fontSize: getProportionScreenration(24), fontWeight: FontWeight.bold),
+            style: TextStyle(
+                color: Colors.black,
+                fontSize: getProportionScreenration(24),
+                fontWeight: FontWeight.bold),
           ),
         ),
         Expanded(
@@ -457,10 +503,9 @@ SizedBox(
                 vertical: getProportionateScreenHeight(5)),
             child: Button(
               titleSize: getProportionScreenration(20),
-              title: '${AppLocalizations.of(context)!.myanalysis}',
-
+              title: AppLocalizations.of(context)!.mycart,
               onPressed: () async {
-                Navigator.pushNamed(context, OrdersPage.routeName);
+                Navigator.pushNamed(context, CartScreen.routname);
               },
               height: getProportionateScreenHeight(60),
               width: getProportionateScreenWidth(180),
@@ -472,23 +517,13 @@ SizedBox(
     else
       return [
         Expanded(
-          child: TextButton(
-            onPressed: () {
-              final languageCode =
-                  Provider.of<LanguageChangeProvider>(context, listen: false)
-                      .current!
-                      .languageCode;
-              Provider.of<LanguageChangeProvider>(context, listen: false)
-                  .changeLocale(languageCode == 'en' ? 'ar' : 'en');
-            },
-            child: Text(
-              AppLocalizations.of(context)!.availableanalysis,
-              textAlign: TextAlign.justify,
-              style: TextStyle(
-                  color: Colors.black,
-                  fontSize: getProportionScreenration(24),
-                  fontWeight: FontWeight.bold),
-            ),
+          child: Text(
+            AppLocalizations.of(context)!.availableanalysis,
+            textAlign: TextAlign.justify,
+            style: TextStyle(
+                color: Colors.black,
+                fontSize: getProportionScreenration(24),
+                fontWeight: FontWeight.bold),
           ),
         ),
         Expanded(
@@ -498,10 +533,10 @@ SizedBox(
                 vertical: getProportionateScreenHeight(10)),
             child: Button(
               titleSize: getProportionScreenration(20),
-              title: '${AppLocalizations.of(context)!.myanalysis}',
+              title: AppLocalizations.of(context)!.mycart,
               //  titleSize: 10,
               onPressed: () async {
-                Navigator.pushNamed(context, OrdersPage.routeName);
+                Navigator.pushNamed(context, CartScreen.routname);
               },
               height: getProportionateScreenHeight(60),
               width: getProportionateScreenWidth(180),

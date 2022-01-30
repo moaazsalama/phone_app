@@ -98,6 +98,14 @@
     "gender":"Gender",
     "submittwo":"Submit",
     "male":"Male",
-    "female":"Female"
-    
+    "female":"Female",
+    "mycart":"My Cart",
+    "addcart":"Analysis Added to Cart ",
+    "undo":"Undo",
+    "noitemscart":"No Items Added Yet",
+    "deliverdetails":"Deliver Details",
+    "name":"Name",
+    "totalprice":"Total Price",
+    "servicecost":"Service Cost",
+    "sendorder":"Sender Order"
 }

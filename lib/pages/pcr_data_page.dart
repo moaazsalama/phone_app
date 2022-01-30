@@ -9,7 +9,7 @@ import 'package:phone_lap/helpers/size_config.dart';
 import 'package:phone_lap/models/analysis.dart';
 import 'package:phone_lap/models/analyzer.dart';
 import 'package:phone_lap/providers/analyzer.dart';
-import 'package:phone_lap/providers/order.dart';
+import 'package:phone_lap/providers/cart.dart';
 import 'package:phone_lap/widgets/button.dart';
 import 'package:phone_lap/widgets/custom_textfeilds.dart' show CustomTextField;
 import 'package:provider/provider.dart';
@@ -288,21 +288,17 @@ class _PcrDataScreenState extends State<PcrDataScreen> {
             .child('${user.analyzerId}/${_pickedImage!.path.split('/').last}')
             .putFile(_pickedImage!);
         final s = await taskSnapshot.ref.getDownloadURL();
+        print(s);
+        final cart = Provider.of<Cart>(context, listen: false);
+        cart.addItem(
+          Analysis(name: 'Pcr Travling', analysisType: 'PCr', price: '100'),
+          passportImageUrl: s,
+          flightLine: _lineController.text,
+          travlingCountry: _countryController.text,
+        );
 
-        final orderItem = OrderItem(
-            analysis: Analysis(name: 'pcr', analysisType: 'PCr', price: '100'),
-            user: user,
-            id: 'id',
-            dateTime: DateTime.now(),
-            passportImageUrl: s,
-            flightLine: _lineController.text,
-            travlingCountry: _countryController.text,
-            isDeliverd: 'no');
+        print(cart.itemCount);
         // ignore: prefer_final_locals
-        var map = orderItem.toMap();
-        map.remove('id');
-        await Provider.of<Orders>(context, listen: false)
-            .sendOrder(orderItem, 'pcrTravel');
       } catch (e) {
         showToast(
           AppLocalizations.of(context)!.noconnection,

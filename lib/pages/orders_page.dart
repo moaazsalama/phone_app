@@ -2,10 +2,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:intl/intl.dart';
-import 'package:oktoast/oktoast.dart';
 import 'package:phone_lap/helpers/size_config.dart';
 import 'package:phone_lap/models/analysisType.dart';
-import 'package:phone_lap/providers/analyzer.dart';
 import 'package:phone_lap/providers/google_sheets_Api.dart';
 import 'package:phone_lap/providers/order.dart';
 import 'package:provider/provider.dart';
@@ -77,22 +75,20 @@ class _OrdersPageState extends State<OrdersPage> {
               ),
             ),
             StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
-                stream: Provider.of<Orders>(context).fetchAllOrders(),
+                stream: Provider.of<Orders>(context, listen: false)
+                    .fetchAllOrders(),
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
                     return const CircularProgressIndicator();
-                  } else {
+                  } else if (snapshot.hasData) {
                     final docs = snapshot.data!.docs;
                     final List<OrderItem> request = [];
-
+                    if (snapshot.data!.docs.isEmpty) return Container();
                     docs.forEach((element) {
                       final orderItem = OrderItem.fromMap(element.data());
-                      final userId =
-                          Provider.of<AnalyzerProvider>(context, listen: false)
-                              .userId;
-                      if (orderItem.user.analyzerId.contains(userId!))
-                        request.add(orderItem);
+                      request.add(orderItem);
                     });
+                    print(request.length);
 
                     return Expanded(
                       child: Padding(
@@ -116,6 +112,8 @@ class _OrdersPageState extends State<OrdersPage> {
                               ),
                       ), //hh
                     );
+                  } else {
+                    return Container();
                   }
                 }),
           ],
@@ -135,234 +133,160 @@ class OrderWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
+    return Padding(
+      padding: const EdgeInsets.all(8),
       child: ExpansionTile(
-        subtitle: request.travlingCountry == null
-            ? null
-            : Text(
-                request.travlingCountry!,
-                textAlign: TextAlign.start,
-                softWrap: true,
-                style: TextStyle(
-                    color: Colors.redAccent,
-                    fontSize: getProportionScreenration(20),
-                    fontWeight: FontWeight.bold),
-              ),
+        backgroundColor: Colors.white,
+        collapsedBackgroundColor: Colors.white,
         title: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Expanded(
-              child: Text(
-                request.analysis.name,
-                textAlign: TextAlign.start,
-                softWrap: true,
-                style: TextStyle(
-                    color: Colors.black,
-                    fontSize: getProportionScreenration(20),
-                    fontWeight: FontWeight.bold),
-              ),
-            ),
             Text(
-              '${DateFormat('y/M/d hh:mm ').add_j().format(request.dateTime)}',
-              textAlign: TextAlign.start,
-              softWrap: true,
-              style: TextStyle(
-                  color: Colors.black,
-                  fontSize: getProportionScreenration(14),
-                  fontWeight: FontWeight.w400),
+              '${request.totalPrice}\$',
+              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
             ),
+            Text(DateFormat('dd/MM/yyyy').format(request.dateTime)),
           ],
         ),
-        expandedAlignment: Alignment.bottomLeft,
-        children: [
-          if (request.passportImageUrl != null)
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    AppLocalizations.of(context)!.passportimage,
-                    textAlign: TextAlign.start,
-                    softWrap: true,
-                    style: TextStyle(
-                        color: Colors.black,
-                        fontSize: getProportionScreenration(14),
-                        fontWeight: FontWeight.w600),
-                  ),
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(40),
-                    child: Image(
-                      image: NetworkImage(
-                        request.passportImageUrl!,
+        subtitle: Text('عدد المنتجات ${request.analysis.length}'),
+        children: request.analysis.map((product) {
+          return Padding(
+            padding: const EdgeInsets.all(4.0),
+            child: Column(
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      AppLocalizations.of(context)!.analysisname,
+                      style: const TextStyle(
+                          color: Colors.red,
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold),
+                    ),
+                    Text(
+                      product.analysis.name,
+                      style: const TextStyle(
+                        fontSize: 18,
                       ),
-                      fit: BoxFit.cover,
-                      height: getProportionateScreenHeight(80),
-                      width: getProportionateScreenWidth(80),
                     ),
-                  ),
-                ],
-              ),
-            ),
-          if (request.travlingCountry != null)
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    AppLocalizations.of(context)!.travelcountry,
-                    textAlign: TextAlign.start,
-                    softWrap: true,
-                    style: TextStyle(
-                        color: Colors.black,
-                        fontSize: getProportionScreenration(14),
-                        fontWeight: FontWeight.w600),
-                  ),
-                  Text(
-                    request.travlingCountry!,
-                    textAlign: TextAlign.start,
-                    softWrap: true,
-                    style: TextStyle(
-                        color: Colors.black,
-                        fontSize: getProportionScreenration(14),
-                        fontWeight: FontWeight.w600),
-                  ),
-                ],
-              ),
-            ),
-          if (request.flightLine != null)
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    AppLocalizations.of(context)!.flightline,
-                    textAlign: TextAlign.start,
-                    softWrap: true,
-                    style: TextStyle(
-                        color: Colors.black,
-                        fontSize: getProportionScreenration(14),
-                        fontWeight: FontWeight.w600),
-                  ),
-                  Text(
-                    request.flightLine!,
-                    textAlign: TextAlign.start,
-                    softWrap: true,
-                    style: TextStyle(
-                        color: Colors.black,
-                        fontSize: getProportionScreenration(14),
-                        fontWeight: FontWeight.w600),
-                  ),
-                ],
-              ),
-            ),
-          if (request.flightLine != null)
-            Divider(
-              color: Theme.of(context).primaryColor,
-            ),
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  AppLocalizations.of(context)!.analysisname,
-                  textAlign: TextAlign.start,
-                  softWrap: true,
-                  style: TextStyle(
-                      color: Colors.black,
-                      fontSize: getProportionScreenration(14),
-                      fontWeight: FontWeight.w600),
+                  ],
                 ),
-                Text(
-                  request.analysis.name,
-                  textAlign: TextAlign.start,
-                  softWrap: true,
-                  style: TextStyle(
-                      color: Colors.black,
-                      fontSize: getProportionScreenration(14),
-                      fontWeight: FontWeight.w600),
+                const SizedBox(
+                  height: 3,
                 ),
+                if (product.passportImageUrl != null)
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(20),
+                        child: Image.network(
+                          product.passportImageUrl!,
+                          fit: BoxFit.cover,
+                          width: getProportionateScreenWidth(100),
+                          height: getProportionateScreenHeight(100),
+                        ),
+                      ),
+                      const Expanded(
+                        child: Text(
+                          'Image',
+                          style: TextStyle(
+                            fontSize: 14,
+                          ),
+                        ),
+                      ),
+                    ].reversed.toList(),
+                  ),
+                const SizedBox(
+                  height: 3,
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      AppLocalizations.of(context)!.price,
+                      style: const TextStyle(
+                        color: Colors.red,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 18,
+                      ),
+                    ),
+                    Text(
+                      product.analysis.price,
+                      style: const TextStyle(
+                        fontSize: 14,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(
+                  height: 3,
+                ),
+                if (product.flightLine != null)
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        AppLocalizations.of(context)!.flightline,
+                        style: const TextStyle(
+                          color: Colors.red,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 18,
+                        ),
+                      ),
+                      Text(
+                        product.flightLine!,
+                        style: const TextStyle(
+                          fontSize: 14,
+                        ),
+                      ),
+                    ],
+                  ),
+                const SizedBox(
+                  height: 10,
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      AppLocalizations.of(context)!.result,
+                      style: const TextStyle(
+                        color: Colors.red,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 18,
+                      ),
+                    ),
+                    if (product.resultUrl != null)
+                      TextButton(
+                          onPressed: () {
+                            launch(product.resultUrl!);
+                          },
+                          child: Text(
+                            AppLocalizations.of(context)!.result,
+                            maxLines: 1,
+                            overflow: TextOverflow.clip,
+                          ))
+                    else
+                      Text(
+                        AppLocalizations.of(context)!.noresults,
+                        style: const TextStyle(
+                          fontSize: 14,
+                        ),
+                      ),
+                  ],
+                ),
+                const SizedBox(
+                  height: 10,
+                ),
+                const Divider(
+                  height: 10,
+                  color: Colors.black,
+                )
               ],
             ),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  AppLocalizations.of(context)!.price,
-                  textAlign: TextAlign.start,
-                  softWrap: true,
-                  style: TextStyle(
-                      color: Colors.black,
-                      fontSize: getProportionScreenration(14),
-                      fontWeight: FontWeight.w600),
-                ),
-                Text(
-                  request.analysis.price.replaceAll('LE', '') +
-                      ' ' +
-                      AppLocalizations.of(context)!.le,
-                  textAlign: TextAlign.start,
-                  softWrap: true,
-                  style: TextStyle(
-                      color: Colors.black,
-                      fontSize: getProportionScreenration(14),
-                      fontWeight: FontWeight.w600),
-                ),
-              ],
-            ),
-          ),
-          if (request.resultUrl != null)
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    AppLocalizations.of(context)!.result,
-                    textAlign: TextAlign.start,
-                    softWrap: true,
-                    style: TextStyle(
-                        color: Colors.black,
-                        fontSize: getProportionScreenration(14),
-                        fontWeight: FontWeight.w600),
-                  ),
-                  TextButton(
-                    onPressed: () async {
-                      try {
-                        final Uri? tryParse = Uri.tryParse(request.resultUrl!);
-                        tryParse!.toString();
-                        await launch(request.resultUrl!, forceSafariVC: false);
-                      } on Exception {
-                        showToast(
-                          AppLocalizations.of(context)!.noconnection,
-                          duration: const Duration(seconds: 2),
-                          position: ToastPosition.center,
-                          backgroundColor: Colors.black.withOpacity(0.8),
-                          radius: getProportionScreenration(3),
-                          textStyle: TextStyle(
-                              fontSize: getProportionScreenration(20.0)),
-                        );
-                      }
-                    },
-                    child: Text(
-                      AppLocalizations.of(context)!.view,
-                      textAlign: TextAlign.start,
-                      softWrap: true,
-                      style: TextStyle(
-                          color: Colors.green,
-                          fontSize: getProportionScreenration(16),
-                          fontWeight: FontWeight.w600),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-        ],
+          );
+        }).toList(),
       ),
     );
   }

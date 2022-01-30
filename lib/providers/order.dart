@@ -1,16 +1,17 @@
-// ignore_for_file: unnecessary_null_comparison
+// ignore_for_file: unnecessary_null_comparison, iterable_contains_unrelated_type
 
 import 'dart:convert';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:phone_lap/models/analysis.dart';
+
 import 'package:phone_lap/models/analyzer.dart';
 
-import 'google_sheets_Api.dart';
+import 'cart.dart';
 
 class Orders with ChangeNotifier {
-  int? _servicePrice;
+  double? _servicePrice;
   String? userId;
   CollectionReference<Map<String, dynamic>>? requests;
   void getData(
@@ -21,107 +22,72 @@ class Orders with ChangeNotifier {
     notifyListeners();
   }
 
-  int servicePrice(String area, String analysis) {
-    final cities = ['alex', 'fayoum', 'madenty', 'elrehab', 'eltgm3'];
-    if (cities.contains(area)) {
-      if (analysis.contains('pcr'))
-        return 150;
+  double servicePrice(String area, List<CartItem> analysis) {
+    final cities = ['madenty', 'elrehab', 'eltgm3'];
+    final out = ['alex', 'fayoum'];
+    final bool isOut = out.contains(area);
+    bool isPcr = false;
+    final bool isSoFar = cities.contains(area);
+    for (var item in analysis) {
+      if (item.analysis.analysisType.contains('pcr') ||
+          item.analysis.analysisType.contains('Pcr') ||
+          item.analysis.analysisType.contains('PCR')) {
+        isPcr = true;
+      }
+    }
+    if (isSoFar) {
+      if (isPcr)
+        return 200;
+      else
+        return 100;
+    } else if (isOut) {
+      if (isPcr)
+        return 250;
       else
         return 100;
     } else {
-      if (analysis.contains('pcr'))
-        return 75;
+      if (isPcr)
+        return 100;
       else
         return 50;
     }
   }
 
-  Future<bool> sendOrder(OrderItem orderItem, String sheet) async {
+  Future<void> deliverAnalysis(
+      String url, OrderItem orderItem, Analysis analysis) async {
+    print('enter');
+    final future =
+        FirebaseFirestore.instance.collection('Orders').doc(orderItem.id!);
+    final future2 = await future.get();
+    print(future2.data());
+    // ignore: prefer_final_locals
+    List<dynamic> analysisList = future2.get('analysis');
+    for (var an in analysisList) {
+      if (an['id'] == analysis.name) {
+        an['resultUrl'] = url;
+      }
+    }
+    return await future.update({'analysis': analysisList});
+  }
+
+  Future<bool> sendOrder(OrderItem orderItem) async {
     DocumentReference<Map<String, dynamic>>? id;
-    _servicePrice =
-        servicePrice(orderItem.user.address, orderItem.analysis.name);
+    _servicePrice = servicePrice(orderItem.user.address, orderItem.analysis);
     try {
-      orderItem = orderItem.copyWith(
-          analysis: orderItem.analysis.copyWith(
-              price: (int.parse(orderItem.analysis.price) + _servicePrice!)
-                  .toString()));
+      orderItem =
+          orderItem.copyWith(totalPrice: orderItem.totalPrice + _servicePrice!);
       final map = orderItem.toMap();
       map.remove('id');
       id = await FirebaseFirestore.instance.collection('Orders').add(map);
-      map.addAll({'id': id.id});
 
       FirebaseFirestore.instance
           .collection('Orders')
           .doc(id.id)
           .update({'id': id.id});
-    } on Exception {
-      rethrow;
-    }
-    if (sheet.contains('pcrTravel')) {
-      await UserSheetApi.insertPcrTravel({
-        'analysisName': orderItem.analysis.name,
-        'price': orderItem.analysis.price,
-        'analysisType': orderItem.analysis.analysisType.toString(),
-        'analyzerId': orderItem.user.analyzerId,
-        'analayzerName': orderItem.user.name,
-        'analayzerPhone': orderItem.user.phone,
-        'analayzerAddress': orderItem.user.address,
-        'analayzerDate': orderItem.user.date,
-        'analayzerEmail': orderItem.user.email,
-        'analayzerGender': orderItem.user.gender,
-        'Orderid': id.id,
-        'dateTime': orderItem.dateTime.toString(),
-        'passportImageUrl': orderItem.passportImageUrl,
-        'travlingCountry': orderItem.travlingCountry,
-        'flightLine': orderItem.flightLine,
-      });
-    } else if (sheet.contains('pcrNormal')) {
-      await UserSheetApi.insertPcrNormal({
-        'analysisName': orderItem.analysis.name,
-        'price': orderItem.analysis.price,
-        'analyzerId': orderItem.user.analyzerId,
-        'analayzerName': orderItem.user.name,
-        'analayzerPhone': orderItem.user.phone,
-        'analayzerAddress': orderItem.user.address,
-        'analayzerDate': orderItem.user.date,
-        'analayzerEmail': orderItem.user.email,
-        'analayzerGender': orderItem.user.gender,
-        'Orderid': id.id,
-        'dateTime': orderItem.dateTime.toString(),
-      });
-    } else if (sheet.contains('blood')) {
-      await UserSheetApi.insertBloodAnalysis({
-        'analysisName': orderItem.analysis.name,
-        'price': orderItem.analysis.price,
-        'analyzerId': orderItem.user.analyzerId,
-        'analayzerName': orderItem.user.name,
-        'analayzerPhone': orderItem.user.phone,
-        'analayzerAddress': orderItem.user.address,
-        'analayzerDate': orderItem.user.date,
-        'analayzerEmail': orderItem.user.email,
-        'analayzerGender': orderItem.user.gender,
-        'Orderid': id.id,
-        'dateTime': orderItem.dateTime.toString(),
-      });
-    } else {
-      await UserSheetApi.insertNecessaryAnalysis({
-        'analysisName': orderItem.analysis.name,
-        'price': orderItem.analysis.price,
-        'analyzerId': orderItem.user.analyzerId,
-        'analayzerName': orderItem.user.name,
-        'analayzerPhone': orderItem.user.phone,
-        'analayzerAddress': orderItem.user.address,
-        'analayzerDate': orderItem.user.date,
-        'analayzerEmail': orderItem.user.email,
-        'analayzerGender': orderItem.user.gender,
-        'Orderid': id.id,
-        'dateTime': orderItem.dateTime.toString(),
-      });
-    }
-    if (id == null) {
-      return false;
-    } else {
+
       return true;
+    } on Exception {
+      return false;
     }
   }
 
@@ -134,123 +100,20 @@ class Orders with ChangeNotifier {
 }
 
 class OrderItem {
-  final Analysis analysis;
+  final List<CartItem> analysis;
   final Analyzer user;
   final String? id;
   final String isDeliverd;
   final DateTime dateTime;
-  final String? passportImageUrl;
-  final String? travlingCountry;
-  final String? flightLine;
-  final String? resultUrl;
+  final double totalPrice;
   OrderItem({
-    required this.isDeliverd,
-    this.resultUrl,
     required this.analysis,
     required this.user,
-    required this.id,
+    this.id,
+    required this.isDeliverd,
     required this.dateTime,
-    this.passportImageUrl,
-    this.travlingCountry,
-    this.flightLine,
+    required this.totalPrice,
   });
-
-  OrderItem copyWith({
-    String? isDeliverd,
-    Analysis? analysis,
-    Analyzer? user,
-    String? id,
-    DateTime? dateTime,
-    String? passportImageUrl,
-    String? travlingCountry,
-    String? flightLine,
-    String? resultUrl,
-  }) {
-    return OrderItem(
-      analysis: analysis ?? this.analysis,
-      resultUrl: resultUrl ?? this.resultUrl,
-      user: user ?? this.user,
-      id: id ?? this.id,
-      dateTime: dateTime ?? this.dateTime,
-      passportImageUrl: passportImageUrl ?? this.passportImageUrl,
-      travlingCountry: travlingCountry ?? this.travlingCountry,
-      flightLine: flightLine ?? this.flightLine,
-      isDeliverd: isDeliverd ?? this.isDeliverd,
-    );
-  }
-
-  Future<void> deliver(String resultUrl) async {
-    await FirebaseFirestore.instance.collection('Orders').doc(id).update(
-      {'isDeliverd': 'yes', 'resultUrl': resultUrl},
-    );
-  }
-
-  Map<String, dynamic> toMap() {
-    return {
-      'analysis': analysis.toMap(),
-      'user': user.toMap(),
-      'id': id,
-      'dateTime': dateTime.toString(),
-      'passportImageUrl': passportImageUrl,
-      'travlingCountry': travlingCountry,
-      'flightLine': flightLine,
-      'resultUrl': resultUrl,
-      'isDeliverd': isDeliverd
-    };
-  }
-
-  factory OrderItem.fromMap(Map<String, dynamic> map) {
-    return OrderItem(
-      analysis: Analysis.fromMap(map['analysis']),
-      user: Analyzer.fromMap(map['user']),
-      id: map['id'],
-      dateTime: DateTime.parse(map['dateTime']),
-      passportImageUrl: map['passportImageUrl'],
-      travlingCountry: map['travlingCountry'],
-      flightLine: map['flightLine'],
-      isDeliverd: map['isDeliverd'],
-      resultUrl: map['resultUrl'],
-    );
-  }
-
-  String toJson() => json.encode(toMap());
-
-  factory OrderItem.fromJson(String source) =>
-      OrderItem.fromMap(json.decode(source));
-
-  @override
-  String toString() {
-    return 'OrderItem(analysis: $analysis, user: $user, id: $id, dateTime: $dateTime, passportImageUrl: $passportImageUrl, travlingCountry: $travlingCountry, flightLine: $flightLine, isDeliverd: $isDeliverd, resultUrl: $resultUrl)';
-  }
-
-  @override
-  bool operator ==(Object other) {
-    if (identical(this, other)) return true;
-
-    return other is OrderItem &&
-        other.analysis == analysis &&
-        other.user == user &&
-        other.id == id &&
-        other.dateTime == dateTime &&
-        other.passportImageUrl == passportImageUrl &&
-        other.travlingCountry == travlingCountry &&
-        other.flightLine == flightLine &&
-        other.resultUrl == resultUrl &&
-        other.isDeliverd == isDeliverd;
-  }
-
-  @override
-  int get hashCode {
-    return analysis.hashCode ^
-        user.hashCode ^
-        id.hashCode ^
-        dateTime.hashCode ^
-        passportImageUrl.hashCode ^
-        travlingCountry.hashCode ^
-        flightLine.hashCode ^
-        resultUrl.hashCode ^
-        isDeliverd.hashCode;
-  }
 
   static List<String> get values => [
         'analysisName',
@@ -271,4 +134,78 @@ class OrderItem {
         'isDeliverd',
         'resultUrl'
       ];
+
+  OrderItem copyWith({
+    List<CartItem>? analysis,
+    Analyzer? user,
+    String? id,
+    String? isDeliverd,
+    DateTime? dateTime,
+    double? totalPrice,
+  }) {
+    return OrderItem(
+      analysis: analysis ?? this.analysis,
+      user: user ?? this.user,
+      id: id ?? this.id,
+      isDeliverd: isDeliverd ?? this.isDeliverd,
+      dateTime: dateTime ?? this.dateTime,
+      totalPrice: totalPrice ?? this.totalPrice,
+    );
+  }
+
+  Map<String, dynamic> toMap() {
+    return {
+      'analysis': analysis.map((x) => x.toMap()).toList(),
+      'user': user.toMap(),
+      'id': id,
+      'isDeliverd': isDeliverd,
+      'dateTime': dateTime.millisecondsSinceEpoch,
+      'totalPrice': totalPrice,
+    };
+  }
+
+  factory OrderItem.fromMap(Map<String, dynamic> map) {
+    return OrderItem(
+      analysis:
+          List<CartItem>.from(map['analysis']?.map((x) => CartItem.fromMap(x))),
+      user: Analyzer.fromMap(map['user']),
+      id: map['id'],
+      isDeliverd: map['isDeliverd'] ?? '',
+      dateTime: DateTime.fromMillisecondsSinceEpoch(map['dateTime']),
+      totalPrice: map['totalPrice']?.toDouble() ?? 0.0,
+    );
+  }
+
+  String toJson() => json.encode(toMap());
+
+  factory OrderItem.fromJson(String source) =>
+      OrderItem.fromMap(json.decode(source));
+
+  @override
+  String toString() {
+    return 'OrderItem(analysis: $analysis, user: $user, id: $id, isDeliverd: $isDeliverd, dateTime: $dateTime, totalPrice: $totalPrice)';
+  }
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+
+    return other is OrderItem &&
+        listEquals(other.analysis, analysis) &&
+        other.user == user &&
+        other.id == id &&
+        other.isDeliverd == isDeliverd &&
+        other.dateTime == dateTime &&
+        other.totalPrice == totalPrice;
+  }
+
+  @override
+  int get hashCode {
+    return analysis.hashCode ^
+        user.hashCode ^
+        id.hashCode ^
+        isDeliverd.hashCode ^
+        dateTime.hashCode ^
+        totalPrice.hashCode;
+  }
 }

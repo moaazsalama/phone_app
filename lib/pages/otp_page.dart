@@ -5,7 +5,6 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:numeric_keyboard/numeric_keyboard.dart';
 import 'package:oktoast/oktoast.dart';
 import 'package:phone_lap/helpers/size_config.dart';
-import 'package:phone_lap/models/analyzer.dart';
 import 'package:phone_lap/pages/home_page.dart';
 import 'package:phone_lap/pages/info_page.dart';
 import 'package:phone_lap/providers/analyzer.dart';
@@ -139,9 +138,11 @@ class _OtpPageState extends State<OtpPage> {
                               builder: (context) => InfoScreen(),
                             ));
                       } else {
-                        final analyzer = await Provider.of<AnalyzerProvider>(context,
+                        final analyzer = await Provider.of<AnalyzerProvider>(
+                                context,
                                 listen: false)
-                            .getAnalyzer(FirebaseAuth.instance.currentUser!.uid);
+                            .getAnalyzer(
+                                FirebaseAuth.instance.currentUser!.uid);
                         final value = await Provider.of<AuthProvider>(context,
                                 listen: false)
                             .isAdmin(analyzer!.email);

@@ -98,7 +98,16 @@
     "gender":"النوع",
     "submittwo":"تاكيد",
     "male":"ذكر",
-    "female":"انثى"
+    "female":"انثى",
+    "mycart":"السلة",
+    "addcart":"تمت اضافة التحليل الي السلة ",
+    "undo":"تراجع",
+    "noitemscart":"لم تتم اضافة تحاليل بعد",
+    "deliverdetails":"تفاصيل التوصيل",
+    "name":"الأسم",
+    "totalprice":"اجمالي المبلغ",
+    "servicecost":"سعر خدمة التوصيل ",
+    "sendorder":"اتمام عملية الشراء"
     
     
 

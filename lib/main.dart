@@ -8,6 +8,7 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:oktoast/oktoast.dart';
 import 'package:phone_lap/pages/admin_page.dart';
 import 'package:phone_lap/pages/blood_page.dart';
+import 'package:phone_lap/pages/cart_screen.dart';
 import 'package:phone_lap/pages/confirm_page.dart';
 import 'package:phone_lap/pages/home_page.dart';
 import 'package:phone_lap/pages/login_page.dart';
@@ -18,6 +19,7 @@ import 'package:phone_lap/pages/prescription_data.dart';
 import 'package:phone_lap/pages/search_page.dart';
 import 'package:phone_lap/providers/analyzer.dart';
 import 'package:phone_lap/providers/auth.dart';
+import 'package:phone_lap/providers/cart.dart';
 import 'package:phone_lap/providers/google_sheets_Api.dart';
 import 'package:phone_lap/providers/languagesprovider.dart';
 import 'package:phone_lap/providers/order.dart';
@@ -52,6 +54,9 @@ class App extends StatelessWidget {
             update: (context, authvalue, previous) {
               return previous!..getData(authvalue.uid);
             }),
+        ChangeNotifierProvider<Cart>(
+          create: (context) => Cart(),
+        ),
         ChangeNotifierProxyProvider<AuthProvider, Orders>(
           create: (context) => Orders(),
           update: (context, authvalueforOrders, previous) {
@@ -93,6 +98,7 @@ class App extends StatelessWidget {
               SearchPage.routeName: (context) => SearchPage(),
               AdminPage.routeName: (context) => const AdminPage(),
               PrescriptionData.routeName: (context) => PrescriptionData(),
+              CartScreen.routname: (context) => CartScreen(),
             },
             home: FirebaseAuth.instance.currentUser == null
                 ? const LoginPage()
@@ -108,7 +114,7 @@ class App extends StatelessWidget {
                               child: CircularProgressIndicator(),
                             );
                           } else if (snapshot.hasData) {
-                            print(snapshot.data);
+                            print('${snapshot.data!.toString()}' 'admin');
                             if (snapshot.data!)
                               return const AdminPage();
                             else
